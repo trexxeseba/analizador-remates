@@ -133,14 +133,26 @@ function calcStats(prices) {
   return { min: sorted[0], max: sorted[sorted.length - 1], median };
 }
 
-async function searchMLU(termino) {
+async function getMLUToken(appId, secret) {
+  const res = await fetch("https://api.mercadolibre.com/oauth/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json" },
+    body: `grant_type=client_credentials&client_id=${appId}&client_secret=${secret}`,
+  });
+  if (!res.ok) throw new Error(`token HTTP ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  if (!data.access_token) throw new Error(`no access_token: ${JSON.stringify(data)}`);
+  return data.access_token;
+}
+
+async function searchMLU(termino, token) {
   try {
-    const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10`;
+    const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10&access_token=${token}`;
     const mluRes = await fetch(url, {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
+      method: "GET",
+      headers: { "Accept": "application/json" },
     });
-    if (!mluRes.ok) throw new Error(`MLU HTTP ${mluRes.status}`);
+    if (!mluRes.ok) throw new Error(`MLU HTTP ${mluRes.status}: ${await mluRes.text()}`);
     const mluData = await mluRes.json();
     const results = mluData.results ?? [];
     const titulos = results.slice(0, 5).map(i => ({
@@ -206,11 +218,19 @@ export async function onRequestPost(context) {
     return Response.json({ error: "Se requiere al menos una imagen" }, { status: 400, headers: CORS_HEADERS });
   }
 
-  // ── MLU searches in parallel ──
+  // ── Get ML token then search in parallel ──
   const terminos = Array.isArray(terminos_busqueda) ? terminos_busqueda.filter(Boolean).slice(0, 3) : [];
   if (terminos.length === 0 && contexto) terminos.push(contexto.slice(0, 60));
 
-  const busquedas = terminos.length > 0 ? await Promise.all(terminos.map(searchMLU)) : [];
+  let busquedas = [];
+  if (terminos.length > 0) {
+    try {
+      const mlToken = await getMLUToken(env.ML_APP_ID, env.ML_SECRET);
+      busquedas = await Promise.all(terminos.map(t => searchMLU(t, mlToken)));
+    } catch (tokenErr) {
+      busquedas = terminos.map(t => ({ termino: t, error: `token: ${tokenErr.message}` }));
+    }
+  }
 
   const mluBlock = buildMLUPromptBlock(busquedas);
   const mluResumen = busquedas.every(b => b.total === 0 || b.error)
