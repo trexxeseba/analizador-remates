@@ -134,17 +134,15 @@ function calcStats(prices) {
 }
 
 async function searchMLU(termino) {
-  const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10`;
   try {
-    const res = await fetch(url, {
-      headers: { "Accept": "application/json" },
+    const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10`;
+    const mluRes = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
     });
-    if (!res.ok) {
-      const body = await res.text().catch(() => "");
-      return { termino, error: `HTTP ${res.status}: ${body.slice(0, 120)}`, total: 0, titulos: [] };
-    }
-    const data = await res.json();
-    const results = data.results ?? [];
+    if (!mluRes.ok) throw new Error(`MLU HTTP ${mluRes.status}`);
+    const mluData = await mluRes.json();
+    const results = mluData.results ?? [];
     const titulos = results.slice(0, 5).map(i => ({
       titulo: i.title,
       precio: i.price,
@@ -154,14 +152,14 @@ async function searchMLU(termino) {
     const stats = calcStats(prices);
     return {
       termino,
-      total: data.paging?.total ?? 0,
+      total: mluData.paging?.total ?? 0,
       precio_min: stats.min,
       precio_max: stats.max,
       mediana: stats.median,
       titulos,
     };
   } catch (e) {
-    return { termino, error: `fetch failed: ${String(e)}`, total: 0, titulos: [] };
+    return { termino, error: e.message };
   }
 }
 
