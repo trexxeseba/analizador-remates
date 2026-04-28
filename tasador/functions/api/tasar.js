@@ -133,45 +133,63 @@ function calcStats(prices) {
   return { min: sorted[0], max: sorted[sorted.length - 1], median };
 }
 
-async function getMLUToken(appId, secret) {
-  const res = await fetch("https://api.mercadolibre.com/oauth/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json" },
-    body: `grant_type=client_credentials&client_id=${appId}&client_secret=${secret}`,
+function parseMLUListingHTML(html, termino) {
+  const items = [];
+  const re = /"title":"([^"]{5,}?)"[^}]*?"price":(\d+)/g;
+  let m;
+  while ((m = re.exec(html)) !== null && items.length < 20) {
+    const price = Number(m[2]);
+    const title = m[1];
+    if (price > 100 && !title.toLowerCase().includes("mercadolibre")) {
+      items.push({ titulo: title, precio: price, condicion: "usado" });
+    }
+  }
+  const seen = new Set();
+  const unique = items.filter(i => {
+    const k = i.titulo.slice(0, 30);
+    return seen.has(k) ? false : seen.add(k);
   });
-  if (!res.ok) throw new Error(`token HTTP ${res.status}: ${await res.text()}`);
-  const data = await res.json();
-  if (!data.access_token) throw new Error(`no access_token: ${JSON.stringify(data)}`);
-  return data.access_token;
+  const prices = unique.map(i => i.precio);
+  const stats = calcStats(prices);
+  return {
+    termino,
+    total: unique.length,
+    precio_min: stats.min,
+    precio_max: stats.max,
+    mediana: stats.median,
+    titulos: unique.slice(0, 5),
+    source: "oxylabs",
+  };
 }
 
-async function searchMLU(termino, token) {
+async function searchMLU(termino, oxylabsUser, oxylabsPass) {
+  if (!oxylabsUser || !oxylabsPass) {
+    return { termino, total: 0, error: "OXYLABS_USER/PASS no configurados" };
+  }
   try {
-    const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10&access_token=${token}`;
-    const mluRes = await fetch(url, {
-      method: "GET",
-      headers: { "Accept": "application/json" },
+    const slug = termino.trim().replace(/\s+/g, "-").toLowerCase();
+    const listadoUrl = `https://listado.mercadolibre.com.uy/${slug}`;
+    const oxyRes = await fetch("https://realtime.oxylabs.io/v1/queries", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Basic " + btoa(`${oxylabsUser}:${oxylabsPass}`),
+      },
+      body: JSON.stringify({
+        source: "universal",
+        url: listadoUrl,
+        render: "html",
+        geo_location: "Uruguay",
+      }),
     });
-    if (!mluRes.ok) throw new Error(`MLU HTTP ${mluRes.status}: ${await mluRes.text()}`);
-    const mluData = await mluRes.json();
-    const results = mluData.results ?? [];
-    const titulos = results.slice(0, 5).map(i => ({
-      titulo: i.title,
-      precio: i.price,
-      condicion: i.condition === "new" ? "nuevo" : "usado",
-    }));
-    const prices = results.map(i => i.price).filter(p => p > 0);
-    const stats = calcStats(prices);
-    return {
-      termino,
-      total: mluData.paging?.total ?? 0,
-      precio_min: stats.min,
-      precio_max: stats.max,
-      mediana: stats.median,
-      titulos,
-    };
+    if (!oxyRes.ok) return { termino, error: `Oxylabs HTTP ${oxyRes.status}` };
+    const oxyData = await oxyRes.json();
+    if (oxyData.job?.status !== "done") return { termino, error: `Oxylabs ${oxyData.job?.status}` };
+    const html = oxyData.results?.[0]?.content ?? "";
+    if (!html) return { termino, total: 0, titulos: [] };
+    return parseMLUListingHTML(html, termino);
   } catch (e) {
-    return { termino, error: e.message };
+    return { termino, error: `Oxylabs: ${e.message}` };
   }
 }
 
@@ -218,18 +236,15 @@ export async function onRequestPost(context) {
     return Response.json({ error: "Se requiere al menos una imagen" }, { status: 400, headers: CORS_HEADERS });
   }
 
-  // ── Get ML token then search in parallel ──
+  // ── Token + search ──
   const terminos = Array.isArray(terminos_busqueda) ? terminos_busqueda.filter(Boolean).slice(0, 3) : [];
   if (terminos.length === 0 && contexto) terminos.push(contexto.slice(0, 60));
 
   let busquedas = [];
   if (terminos.length > 0) {
-    try {
-      const mlToken = await getMLUToken(env.ML_APP_ID, env.ML_SECRET);
-      busquedas = await Promise.all(terminos.map(t => searchMLU(t, mlToken)));
-    } catch (tokenErr) {
-      busquedas = terminos.map(t => ({ termino: t, error: `token: ${tokenErr.message}` }));
-    }
+    busquedas = await Promise.all(
+      terminos.map(t => searchMLU(t, env.OXYLABS_USER, env.OXYLABS_PASS))
+    );
   }
 
   const mluBlock = buildMLUPromptBlock(busquedas);
