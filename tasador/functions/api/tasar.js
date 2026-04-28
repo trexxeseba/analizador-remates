@@ -136,8 +136,13 @@ function calcStats(prices) {
 async function searchMLU(termino) {
   const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10`;
   try {
-    const res = await fetch(url);
-    if (!res.ok) return { termino, error: `HTTP ${res.status}`, total: 0, titulos: [], stats: {} };
+    const res = await fetch(url, {
+      headers: { "Accept": "application/json" },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      return { termino, error: `HTTP ${res.status}: ${body.slice(0, 120)}`, total: 0, titulos: [] };
+    }
     const data = await res.json();
     const results = data.results ?? [];
     const titulos = results.slice(0, 5).map(i => ({
@@ -156,14 +161,15 @@ async function searchMLU(termino) {
       titulos,
     };
   } catch (e) {
-    return { termino, error: e.message, total: 0, titulos: [], stats: {} };
+    return { termino, error: `fetch failed: ${String(e)}`, total: 0, titulos: [] };
   }
 }
 
 function buildMLUPromptBlock(busquedas) {
   if (!busquedas.length) return "MLU: sin búsquedas realizadas.";
   const lines = busquedas.map(b => {
-    if (b.error || b.total === 0) return `"${b.termino}": Sin resultados en MLU Uruguay.`;
+    if (b.error) return `"${b.termino}": ERROR — ${b.error}`;
+    if (b.total === 0) return `"${b.termino}": Sin resultados en MLU Uruguay.`;
     const statsLine = b.mediana != null
       ? `${b.total} publicaciones | min UYU ${b.precio_min} / max UYU ${b.precio_max} / mediana UYU ${b.mediana}`
       : `${b.total} publicaciones`;

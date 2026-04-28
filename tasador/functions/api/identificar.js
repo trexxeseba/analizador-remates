@@ -4,16 +4,12 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-const SYSTEM = `Sos un identificador de objetos para remate. Tu única tarea es devolver un JSON con estos campos exactos, sin texto adicional, sin markdown, sin explicación:
-{
-  "tipo": "LIBRO" o "VINTAGE",
-  "titulo": "nombre más probable del objeto",
-  "terminos_busqueda": ["término1", "término2", "término3"],
-  "casa_remate": null
-}
-Para libros: título y autor en terminos_busqueda.
-Para vintage: material, función y época aproximada en terminos_busqueda.
-Si no podés identificar con certeza, igual devolvé tu mejor estimación con lo visible.`;
+const SYSTEM = `Leé exactamente el texto visible en la imagen. No inventes ni inferás nada que no esté escrito. Devolvé ÚNICAMENTE JSON válido sin markdown ni texto extra:
+{"tipo":"LIBRO" o "VINTAGE","titulo":"texto exacto del título visible","autor":"texto exacto del autor si está visible o null","terminos_busqueda":["término1","término2","término3"],"casa_remate":null}
+Para terminos_busqueda usá palabras reales del título y autor visibles, no descripciones.
+Para libros: poné el título exacto y el autor exacto como términos.
+Para vintage: poné el texto visible en el objeto, material y función observable.
+Si hay poco texto visible, poné solo lo que se lee claramente.`;
 
 export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: CORS_HEADERS });
