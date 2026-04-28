@@ -3,400 +3,316 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Tasador — Amado Libros</title>
+  <title>Tasador Amado</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0d0f18;
-      --surface: #161926;
-      --surface2: #1e2235;
-      --border: #262c42;
-      --text: #e8eaf5;
-      --muted: #6b7394;
-      --accent: #5c6ef5;
-      --h: 52px; /* header height */
-      --compra-bg: #14532d;
-      --compra-fg: #4ade80;
-      --baja-bg: #451a03;
-      --baja-fg: #fb923c;
-      --paso-bg: #450a0a;
-      --paso-fg: #f87171;
+      --bg:        #0d0f18;
+      --surface:   #161926;
+      --surface2:  #1e2235;
+      --surface3:  #252a40;
+      --border:    #262c42;
+      --text:      #e8eaf5;
+      --muted:     #6b7394;
+      --accent:    #5c6ef5;
+      --h:         50px;
+      /* decision */
+      --g-bg: #14532d; --g-fg: #4ade80;
+      --y-bg: #451a03; --y-fg: #fb923c;
+      --r-bg: #450a0a; --r-fg: #f87171;
+      /* tipo */
+      --libro-c:   #818cf8;
+      --vintage-c: #fbbf24;
       --radius: 10px;
     }
 
     html, body { height: 100%; overflow: hidden; }
-
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      font-size: 15px;
-      line-height: 1.5;
-      display: flex;
-      flex-direction: column;
+      font-size: 15px; line-height: 1.5;
+      display: flex; flex-direction: column;
     }
 
     /* ── HEADER ── */
     header {
-      height: var(--h);
-      min-height: var(--h);
-      padding: 0 16px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      height: var(--h); min-height: var(--h);
+      padding: 0 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
       flex-shrink: 0;
     }
-    header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
-    header h1 em { color: var(--accent); font-style: normal; }
-    header .hist-btn {
-      font-size: 12px;
-      color: var(--muted);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 5px 10px;
-      cursor: pointer;
+    header h1 { font-size: 16px; font-weight: 700; }
+    header h1 em { font-style: normal; color: var(--accent); }
+    .hist-btn {
+      font-size: 12px; color: var(--muted);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 5px 10px; cursor: pointer;
       display: none;
     }
-    header .hist-btn.visible { display: block; }
+    .hist-btn.visible { display: block; }
 
-    /* ── MAIN LAYOUT ── */
-    .layout {
-      display: flex;
-      flex: 1;
-      min-height: 0;
-    }
+    /* ── LAYOUT ── */
+    .layout { display: flex; flex: 1; min-height: 0; }
 
     /* ── FORM PANEL ── */
     .panel-form {
-      width: 320px;
-      min-width: 320px;
-      display: flex;
-      flex-direction: column;
+      width: 300px; min-width: 300px;
+      display: flex; flex-direction: column; gap: 10px;
       border-right: 1px solid var(--border);
-      overflow-y: auto;
-      padding: 14px;
-      gap: 10px;
+      padding: 14px; overflow-y: auto; flex-shrink: 0;
     }
 
-    /* upload zone */
+    /* upload */
     .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      background: var(--surface);
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      min-height: 80px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 14px 12px;
-      text-align: center;
-      position: relative;
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      background: var(--surface); cursor: pointer;
+      transition: border-color .15s, background .15s;
+      min-height: 80px; padding: 14px 12px;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; text-align: center; gap: 6px;
     }
     .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--surface2); }
     .upload-zone input { display: none; }
-
-    .upload-ph { pointer-events: none; }
-    .upload-ph strong { display: block; font-size: 14px; color: var(--text); margin-bottom: 3px; }
-    .upload-ph small { font-size: 12px; color: var(--muted); }
-
-    /* photo grid */
+    .upload-ph strong { font-size: 14px; display: block; margin-bottom: 2px; }
+    .upload-ph small { font-size: 11px; color: var(--muted); display: block; }
     .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      width: 100%;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%;
     }
     .photo-thumb {
-      position: relative;
-      aspect-ratio: 1;
-      border-radius: 6px;
-      overflow: hidden;
-      background: var(--surface2);
+      position: relative; aspect-ratio: 1; border-radius: 6px;
+      overflow: hidden; background: var(--surface2);
     }
     .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .photo-thumb .del {
-      position: absolute; top: 3px; right: 3px;
-      width: 22px; height: 22px;
-      background: rgba(0,0,0,.75); border: none; border-radius: 50%;
-      color: #fff; font-size: 14px; line-height: 1;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      position: absolute; top: 2px; right: 2px;
+      width: 20px; height: 20px; background: rgba(0,0,0,.75);
+      border: none; border-radius: 50%; color: #fff;
+      font-size: 13px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
     }
     .photo-thumb .del:hover { background: #dc2626; }
     .photo-meta {
       display: flex; align-items: center; justify-content: space-between;
-      font-size: 12px; color: var(--muted); width: 100%;
-      margin-top: 6px;
+      font-size: 11px; color: var(--muted); width: 100%; padding-top: 2px;
     }
-    .photo-meta button {
-      font-size: 12px; color: var(--accent);
-      background: none; border: none; cursor: pointer; padding: 0;
+    .photo-meta button { color: var(--accent); background: none; border: none; cursor: pointer; font-size: 11px; }
+
+    /* type badge in form */
+    .type-badge {
+      display: none; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+      border: 1px solid;
     }
+    .type-badge.libro  { background: rgba(129,140,248,.1); color: var(--libro-c);   border-color: rgba(129,140,248,.25); }
+    .type-badge.vintage{ background: rgba(251,191,36,.1);  color: var(--vintage-c); border-color: rgba(251,191,36,.25); }
+    .type-badge .tb-title { font-size: 11px; color: var(--muted); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
 
     /* fields */
-    .field-label {
-      font-size: 11px; color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 4px;
-    }
+    .field-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
     textarea, input[type="number"] {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 14px;
-      padding: 9px 11px;
-      outline: none;
-      font-family: inherit;
-      transition: border-color 0.15s;
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 14px;
+      padding: 9px 11px; outline: none; font-family: inherit;
+      transition: border-color .15s;
     }
-    textarea { resize: none; height: 58px; line-height: 1.4; }
+    textarea { resize: none; height: 54px; line-height: 1.4; }
     textarea:focus, input[type="number"]:focus { border-color: var(--accent); }
     .row { display: flex; gap: 8px; }
-    .row > * { flex: 1; }
+    .row > div { flex: 1; }
 
     /* tasar button */
     .btn-tasar {
-      width: 100%;
-      padding: 0;
-      height: 52px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      flex-shrink: 0;
-      margin-top: auto;
+      height: 52px; width: 100%; margin-top: auto;
+      background: var(--accent); color: #fff;
+      font-size: 17px; font-weight: 700;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: opacity .15s, transform .1s; flex-shrink: 0;
     }
-    .btn-tasar:hover:not(:disabled) { opacity: 0.88; }
-    .btn-tasar:active:not(:disabled) { transform: scale(0.98); }
-    .btn-tasar:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-tasar.loading { background: var(--surface2); color: var(--muted); }
+    .btn-tasar:hover:not(:disabled) { opacity: .88; }
+    .btn-tasar:active:not(:disabled) { transform: scale(.98); }
+    .btn-tasar:disabled { opacity: .35; cursor: not-allowed; }
+    .btn-tasar.loading { background: var(--surface2); color: var(--muted); cursor: not-allowed; }
 
-    /* error */
     .error-msg {
-      background: rgba(220,38,38,.12);
-      border: 1px solid rgba(220,38,38,.3);
-      color: #f87171;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 13px;
+      background: rgba(220,38,38,.12); border: 1px solid rgba(220,38,38,.3);
+      color: #f87171; padding: 10px 12px; border-radius: 8px; font-size: 13px;
     }
 
     /* ── RESULT PANEL ── */
     .panel-result {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      flex: 1; min-width: 0; display: flex; flex-direction: column;
+      overflow-y: auto;
     }
 
+    /* empty */
     .result-empty {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 14px;
-      gap: 6px;
-      padding: 20px;
-      text-align: center;
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--muted); font-size: 14px; gap: 4px; text-align: center; padding: 20px;
     }
-    .result-empty .hint { font-size: 12px; opacity: 0.6; }
+    .result-empty small { font-size: 12px; opacity: .55; }
+
+    /* loading steps */
+    .loading-steps {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px; padding: 20px;
+    }
+    .load-step {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: var(--muted); transition: color .3s; width: 220px;
+    }
+    .load-step.active { color: var(--text); }
+    .load-step.done   { color: var(--g-fg); }
+    .load-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--border); flex-shrink: 0; transition: background .3s;
+    }
+    .load-step.active .load-dot { background: var(--accent); animation: blink 1s infinite; }
+    .load-step.done   .load-dot { background: var(--g-fg); }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+    /* result content */
+    #resultContent { display: none; flex-direction: column; }
 
     /* decision block */
     .decision-block {
-      padding: 20px 24px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 4px;
-      flex-shrink: 0;
+      padding: 18px 20px 14px; flex-shrink: 0;
     }
-    .decision-block .book-title {
-      font-size: 12px; color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 4px;
-    }
+    .res-subtitle { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
     .decision-badge {
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 900;
-      letter-spacing: -1px;
-      line-height: 1;
-      padding: 10px 20px;
-      border-radius: 12px;
-      display: inline-block;
+      display: inline-block; font-size: clamp(34px, 4.5vw, 52px);
+      font-weight: 900; letter-spacing: -1px; line-height: 1;
+      padding: 10px 20px; border-radius: 12px;
     }
-    .badge-compra { background: var(--compra-bg); color: var(--compra-fg); }
-    .badge-baja   { background: var(--baja-bg);   color: var(--baja-fg); }
-    .badge-paso   { background: var(--paso-bg);    color: var(--paso-fg); }
-
-    /* numbers grid */
-    .numbers-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      padding: 0 24px 14px;
-      flex-shrink: 0;
-    }
-    .num-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-    }
-    .num-card .num-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
-    .num-card .num-value { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; margin-top: 2px; }
-    .num-card .num-value.highlight { color: var(--compra-fg); }
-
-    /* por qué */
-    .section {
-      padding: 0 24px 12px;
-      flex-shrink: 0;
-    }
-    .section-title {
-      font-size: 11px; color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.5px; margin-bottom: 6px;
-      padding-bottom: 5px; border-bottom: 1px solid var(--border);
-    }
-    .why-lines { display: flex; flex-direction: column; gap: 5px; }
-    .why-line { font-size: 14px; color: var(--text); display: flex; gap: 8px; }
-    .why-line .sign { font-weight: 700; flex-shrink: 0; }
-    .sign-pos { color: var(--compra-fg); }
-    .sign-neg { color: var(--paso-fg); }
-
-    .ojo-tip-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      padding: 0 24px 14px;
-      flex-shrink: 0;
-    }
-    .ojo-tip-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-    }
-    .ojo-tip-card .card-label {
-      font-size: 11px; color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.4px; margin-bottom: 4px;
-    }
-    .ojo-tip-card .card-text { font-size: 13px; color: var(--text); line-height: 1.4; }
+    .d-compra  { background: var(--g-bg); color: var(--g-fg); }
+    .d-baja    { background: var(--y-bg); color: var(--y-fg); }
+    .d-paso    { background: var(--r-bg); color: var(--r-fg); }
 
     /* mlu section */
-    .mlu-section { padding: 0 24px 14px; flex-shrink: 0; }
-    .mlu-section .section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
-    .mlu-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--compra-fg); flex-shrink: 0; }
-    .mlu-searches { display: flex; flex-direction: column; gap: 8px; }
-    .mlu-search-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
-    .mlu-search-query { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
-    .mlu-search-query strong { color: var(--text); }
-    .mlu-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
-    .mlu-stat { font-size: 12px; }
-    .mlu-stat .sl { color: var(--muted); }
-    .mlu-stat .sv { color: var(--text); font-weight: 600; }
-    .mlu-stat .sv.med { color: var(--compra-fg); }
-    .mlu-items { display: flex; flex-direction: column; gap: 3px; }
+    .mlu-section {
+      margin: 0 20px 14px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .mlu-header {
+      padding: 8px 14px; background: var(--surface3);
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .mlu-live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--g-fg);
+      animation: blink 2s infinite;
+    }
+    .mlu-cards { display: flex; flex-direction: column; gap: 0; }
+    .mlu-card {
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+    }
+    .mlu-card:last-child { border-bottom: none; }
+    .mlu-query { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+    .mlu-query strong { color: var(--text); }
+    .mlu-stats { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 5px; }
+    .mlu-stat .sl { font-size: 11px; color: var(--muted); }
+    .mlu-stat .sv { font-size: 13px; font-weight: 700; color: var(--text); }
+    .mlu-stat .sv.med { color: var(--g-fg); }
+    .mlu-items { display: flex; flex-direction: column; gap: 2px; }
     .mlu-item { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
-    .mlu-item .mi-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-    .mlu-item .mi-price { color: var(--text); font-weight: 600; flex-shrink: 0; }
-    .mlu-empty { font-size: 13px; color: var(--muted); font-style: italic; }
-    .mlu-no-results { font-size: 12px; color: var(--paso-fg); }
+    .mlu-item .mi-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .mlu-item .mi-p { color: var(--text); font-weight: 600; flex-shrink: 0; }
+    .mlu-empty { padding: 10px 14px; font-size: 13px; color: var(--r-fg); font-style: italic; }
 
-    /* loading overlay on result */
-    .loading-state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
+    /* numbers */
+    .numbers-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      padding: 0 20px 14px; flex-shrink: 0;
     }
-    .loading-steps { display: flex; flex-direction: column; gap: 8px; }
-    .load-step {
-      font-size: 13px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: color 0.3s;
+    .num-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px;
     }
-    .load-step.active { color: var(--text); }
-    .load-step.done { color: var(--compra-fg); }
-    .load-step .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--border); flex-shrink: 0;
-      transition: background 0.3s;
-    }
-    .load-step.active .dot { background: var(--accent); animation: pulse 1s infinite; }
-    .load-step.done .dot { background: var(--compra-fg); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .num-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .num-value { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.2; margin-top: 3px; word-break: break-word; }
+    .num-value.hl { color: var(--g-fg); }
 
-    /* historial drawer */
+    /* generic section */
+    .res-section { padding: 0 20px 12px; flex-shrink: 0; }
+    .res-section-title {
+      font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+      margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px solid var(--border);
+    }
+    .kv-line {
+      display: flex; gap: 8px; padding: 4px 0;
+      border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    .kv-line:last-child { border-bottom: none; }
+    .kv-key { color: var(--muted); min-width: 140px; flex-shrink: 0; font-size: 12px; }
+    .kv-val { color: var(--text); }
+    .res-text { font-size: 13px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+
+    /* cierre comercial (vintage) */
+    .cierre-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 12px 14px; margin-bottom: 6px;
+    }
+    .cierre-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+    .cierre-val { font-size: 13px; color: var(--text); line-height: 1.45; }
+
+    /* decision sub-fields (vintage) */
+    .decision-sub { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .dsub-line { font-size: 13px; color: var(--muted); display: flex; gap: 8px; }
+    .dsub-key { color: var(--muted); min-width: 110px; font-size: 12px; }
+    .dsub-val { color: var(--text); }
+
+    /* ── HISTORIAL DRAWER ── */
     .hist-drawer {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg);
-      transform: translateX(100%);
-      transition: transform 0.25s ease;
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--bg); transform: translateX(100%);
+      transition: transform .25s ease;
+      display: flex; flex-direction: column;
     }
     .hist-drawer.open { transform: none; }
-    .hist-header {
-      height: var(--h);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 16px;
-      flex-shrink: 0;
+    .hist-hdr {
+      height: var(--h); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 16px; flex-shrink: 0;
     }
-    .hist-header h2 { font-size: 15px; font-weight: 600; }
-    .hist-close {
-      font-size: 22px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px;
-    }
-    .hist-list-scroll { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .hist-hdr h2 { font-size: 15px; font-weight: 600; }
+    .hist-close { font-size: 22px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px; }
+    .hist-scroll { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
     .hist-entry {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: border-color 0.15s;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 12px; cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      transition: border-color .15s;
     }
     .hist-entry:hover { border-color: var(--accent); }
-    .hist-badge-sm {
-      font-size: 12px; font-weight: 800;
-      padding: 3px 10px; border-radius: 6px;
-      flex-shrink: 0;
+    .hist-thumb {
+      width: 44px; height: 44px; border-radius: 6px; object-fit: cover;
+      background: var(--surface2); flex-shrink: 0;
     }
-    .hb-compra { background: var(--compra-bg); color: var(--compra-fg); }
-    .hb-baja   { background: var(--baja-bg);   color: var(--baja-fg); }
-    .hb-paso   { background: var(--paso-bg);    color: var(--paso-fg); }
-    .hist-entry-text { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-info { flex: 1; min-width: 0; }
+    .hist-badges { display: flex; gap: 5px; align-items: center; margin-bottom: 3px; }
+    .h-tipo {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+    }
+    .h-tipo.libro   { background: rgba(129,140,248,.15); color: var(--libro-c); }
+    .h-tipo.vintage { background: rgba(251,191,36,.15);  color: var(--vintage-c); }
+    .h-dec {
+      font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px;
+    }
+    .h-dec.compra { background: var(--g-bg); color: var(--g-fg); }
+    .h-dec.baja   { background: var(--y-bg); color: var(--y-fg); }
+    .h-dec.paso   { background: var(--r-bg); color: var(--r-fg); }
+    .hist-title { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hist-time  { font-size: 11px; color: var(--muted); flex-shrink: 0; opacity: .6; }
 
     /* paste flash */
     .paste-flash {
       position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
       background: var(--accent); color: #fff;
-      font-size: 13px; font-weight: 600;
-      padding: 7px 18px; border-radius: 20px;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 200;
+      font-size: 13px; font-weight: 600; padding: 7px 18px; border-radius: 20px;
+      opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 200;
     }
     .paste-flash.show { opacity: 1; }
 
@@ -404,18 +320,11 @@
     @media (max-width: 680px) {
       html, body { overflow: auto; }
       .layout { flex-direction: column; height: auto; }
-      .panel-form {
-        width: 100%; min-width: 0;
-        border-right: none; border-bottom: 1px solid var(--border);
-        overflow-y: visible;
-      }
-      .panel-result { min-height: 0; overflow: visible; }
+      .panel-form { width: 100%; min-width: 0; border-right: none; border-bottom: 1px solid var(--border); overflow-y: visible; }
+      .panel-result { overflow-y: visible; min-height: 0; }
       .numbers-grid { grid-template-columns: repeat(3, 1fr); }
-      .ojo-tip-grid { grid-template-columns: 1fr; }
-      .decision-badge { font-size: 40px; }
-      header .hist-btn.visible { display: block; }
+      .decision-badge { font-size: 36px; }
     }
-
     @media (min-width: 681px) {
       .panel-result { overflow-y: auto; }
     }
@@ -430,26 +339,27 @@
 
 <div class="layout">
 
-  <!-- FORM -->
+  <!-- ── FORM ── -->
   <div class="panel-form">
 
     <div class="upload-zone" id="uploadZone">
       <input type="file" id="fileInput" accept="image/*" multiple />
       <div class="upload-ph" id="uploadPh">
-        <strong>Fotos del libro</strong>
-        <small>Toca, arrastra o pega (Ctrl+V)</small>
-        <small style="margin-top:2px;opacity:.5">hasta 6 fotos</small>
+        <strong>Fotos del objeto</strong>
+        <small>Toca, arrastrá o pegá (Ctrl+V) — hasta 6</small>
       </div>
       <div class="photo-grid" id="photoGrid"></div>
       <div class="photo-meta" id="photoMeta" style="display:none">
-        <span id="photoCount" style="color:var(--muted);font-size:12px">0 / 6</span>
+        <span id="photoCount">0 / 6</span>
         <button id="addMoreBtn" type="button">+ agregar</button>
       </div>
     </div>
 
+    <div id="typeBadge" class="type-badge"></div>
+
     <div>
       <div class="field-label">Contexto</div>
-      <textarea id="contexto" placeholder="Estado, lote, algo que viste..."></textarea>
+      <textarea id="contexto" placeholder="Estado, lote, lo que viste..."></textarea>
     </div>
 
     <div class="row">
@@ -469,99 +379,96 @@
 
   </div>
 
-  <!-- RESULT -->
+  <!-- ── RESULT ── -->
   <div class="panel-result" id="panelResult">
 
     <div class="result-empty" id="resultEmpty">
-      <div>Foto + Tasar</div>
-      <div class="hint">La decision aparece aca</div>
+      Foto + Tasar
+      <small>La decisión aparece acá</small>
     </div>
 
-    <div id="loadingState" class="loading-state" style="display:none">
-      <div class="loading-steps">
-        <div class="load-step" id="step1"><div class="dot"></div>Identificando libro...</div>
-        <div class="load-step" id="step2"><div class="dot"></div>Buscando en Mercado Libre...</div>
-        <div class="load-step" id="step3"><div class="dot"></div>Analizando...</div>
-      </div>
+    <div class="loading-steps" id="loadingSteps" style="display:none">
+      <div class="load-step" id="step1"><div class="load-dot"></div>Identificando...</div>
+      <div class="load-step" id="step2"><div class="load-dot"></div>Buscando en MLU...</div>
+      <div class="load-step" id="step3"><div class="load-dot"></div>Tasando...</div>
     </div>
 
-    <div id="resultContent" style="display:none">
+    <div id="resultContent">
       <div class="decision-block">
-        <div class="book-title" id="resTitle"></div>
+        <div class="res-subtitle" id="resSubtitle"></div>
         <div class="decision-badge" id="resBadge"></div>
+        <div class="decision-sub" id="decisionSub"></div>
       </div>
-      <div class="numbers-grid" id="resNumbers"></div>
-      <div class="mlu-section" id="resMlu" style="display:none">
-        <div class="section-title"><div class="mlu-dot"></div>Mercado real (MLU ahora)</div>
-        <div class="mlu-searches" id="resMluSearches"></div>
-      </div>
-      <div class="section" id="resWhy" style="display:none">
-        <div class="section-title">Por que</div>
-        <div class="why-lines" id="resWhyLines"></div>
-      </div>
-      <div class="ojo-tip-grid" id="resOjoTip"></div>
+      <div id="mluSection"></div>
+      <div class="numbers-grid" id="numbersGrid"></div>
+      <div id="analysisSections"></div>
     </div>
 
   </div>
 </div>
 
-<!-- HISTORIAL DRAWER -->
+<!-- ── HISTORIAL ── -->
 <div class="hist-drawer" id="histDrawer">
-  <div class="hist-header">
+  <div class="hist-hdr">
     <h2>Historial</h2>
-    <button class="hist-close" id="histClose">x</button>
+    <button class="hist-close" id="histClose">×</button>
   </div>
-  <div class="hist-list-scroll" id="histListScroll"></div>
+  <div class="hist-scroll" id="histScroll"></div>
 </div>
 
 <div class="paste-flash" id="pasteFlash">Imagen pegada</div>
 
 <script>
-  const API_URL = '/api/tasar';
   const MAX = 6;
-
   let photos = [];
   let historial = [];
+  let loadTimers = [];
+  let currentTipo = null;
 
-  const uploadZone  = document.getElementById('uploadZone');
-  const fileInput   = document.getElementById('fileInput');
-  const uploadPh    = document.getElementById('uploadPh');
-  const photoGrid   = document.getElementById('photoGrid');
-  const photoMeta   = document.getElementById('photoMeta');
-  const photoCount  = document.getElementById('photoCount');
-  const addMoreBtn  = document.getElementById('addMoreBtn');
-  const btnTasar    = document.getElementById('btnTasar');
-  const errorMsg    = document.getElementById('errorMsg');
-  const resultEmpty = document.getElementById('resultEmpty');
-  const loadingState= document.getElementById('loadingState');
-  const resultContent=document.getElementById('resultContent');
-  const histBtn     = document.getElementById('histBtn');
-  const histDrawer  = document.getElementById('histDrawer');
-  const histClose   = document.getElementById('histClose');
-  const histListScroll=document.getElementById('histListScroll');
-  const pasteFlash  = document.getElementById('pasteFlash');
+  // ── refs ──
+  const uploadZone   = document.getElementById('uploadZone');
+  const fileInput    = document.getElementById('fileInput');
+  const uploadPh     = document.getElementById('uploadPh');
+  const photoGrid    = document.getElementById('photoGrid');
+  const photoMeta    = document.getElementById('photoMeta');
+  const photoCount   = document.getElementById('photoCount');
+  const addMoreBtn   = document.getElementById('addMoreBtn');
+  const typeBadgeEl  = document.getElementById('typeBadge');
+  const btnTasar     = document.getElementById('btnTasar');
+  const errorMsg     = document.getElementById('errorMsg');
+  const resultEmpty  = document.getElementById('resultEmpty');
+  const loadingSteps = document.getElementById('loadingSteps');
+  const resultContent= document.getElementById('resultContent');
+  const histBtn      = document.getElementById('histBtn');
+  const histDrawer   = document.getElementById('histDrawer');
+  const histClose    = document.getElementById('histClose');
+  const histScroll   = document.getElementById('histScroll');
+  const pasteFlash   = document.getElementById('pasteFlash');
 
-  // ── upload events ──
+  // hide result on start
+  resultContent.style.display = 'none';
+
+  // ── upload ──
   uploadZone.addEventListener('click', e => {
     if (e.target === addMoreBtn || e.target.classList.contains('del')) return;
     if (photos.length < MAX) fileInput.click();
   });
   addMoreBtn.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
-  fileInput.addEventListener('change', () => { Array.from(fileInput.files).forEach(addFile); fileInput.value=''; });
+  fileInput.addEventListener('change', () => { Array.from(fileInput.files).forEach(addFile); fileInput.value = ''; });
 
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+  uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag'); });
   uploadZone.addEventListener('dragleave', e => { if (!uploadZone.contains(e.relatedTarget)) uploadZone.classList.remove('drag'); });
-  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); Array.from(e.dataTransfer.files).forEach(addFile); });
+  uploadZone.addEventListener('drop',      e => { e.preventDefault(); uploadZone.classList.remove('drag'); Array.from(e.dataTransfer.files).forEach(addFile); });
 
   document.addEventListener('paste', e => {
     const imgs = Array.from(e.clipboardData?.items ?? []).filter(i => i.type.startsWith('image/'));
     if (!imgs.length) return;
     e.preventDefault();
     imgs.forEach(i => { const f = i.getAsFile(); if (f) addFile(f); });
-    flash();
+    showFlash();
   });
 
-  function flash() {
+  function showFlash() {
     pasteFlash.classList.add('show');
     setTimeout(() => pasteFlash.classList.remove('show'), 1600);
   }
@@ -586,197 +493,305 @@
     photoCount.textContent = `${photos.length} / ${MAX}`;
     addMoreBtn.style.display = photos.length < MAX ? 'inline' : 'none';
     btnTasar.disabled = photos.length === 0;
-
     photoGrid.innerHTML = photos.map((p, i) => `
       <div class="photo-thumb">
         <img src="${p.dataUrl}" alt="" />
-        <button class="del" data-i="${i}" type="button">x</button>
-      </div>
-    `).join('');
-    photoGrid.querySelectorAll('.del').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); removePhoto(+b.dataset.i); }));
+        <button class="del" data-i="${i}" type="button">×</button>
+      </div>`).join('');
+    photoGrid.querySelectorAll('.del').forEach(b =>
+      b.addEventListener('click', e => { e.stopPropagation(); removePhoto(+b.dataset.i); }));
   }
 
   // ── loading steps ──
-  let loadTimers = [];
-  function startLoadingSteps() {
-    ['step1','step2','step3'].forEach(id => {
+  function setStep(n) {
+    ['step1','step2','step3'].forEach((id, i) => {
       const el = document.getElementById(id);
       el.classList.remove('active','done');
+      if (i + 1 < n) el.classList.add('done');
+      if (i + 1 === n) el.classList.add('active');
     });
-    document.getElementById('step1').classList.add('active');
-    loadTimers.push(setTimeout(() => {
-      document.getElementById('step1').classList.replace('active','done');
-      document.getElementById('step2').classList.add('active');
-    }, 2200));
-    loadTimers.push(setTimeout(() => {
-      document.getElementById('step2').classList.replace('active','done');
-      document.getElementById('step3').classList.add('active');
-    }, 5000));
   }
-  function clearLoadTimers() { loadTimers.forEach(clearTimeout); loadTimers = []; }
+  function clearTimers() { loadTimers.forEach(clearTimeout); loadTimers = []; }
 
-  // ── tasar ──
+  // ── tipo badge ──
+  function showTypeBadge(tipo, titulo) {
+    currentTipo = tipo;
+    typeBadgeEl.className = `type-badge ${tipo === 'VINTAGE' ? 'vintage' : 'libro'}`;
+    typeBadgeEl.innerHTML = `<span>${tipo}</span><span class="tb-title">${x2(titulo ?? '')}</span>`;
+    typeBadgeEl.style.display = 'flex';
+  }
+
+  // ── TASAR ──
   btnTasar.addEventListener('click', async () => {
     if (!photos.length) return;
+
     errorMsg.style.display = 'none';
+    typeBadgeEl.style.display = 'none';
     btnTasar.disabled = true;
     btnTasar.textContent = 'Tasando...';
     btnTasar.classList.add('loading');
     resultEmpty.style.display = 'none';
     resultContent.style.display = 'none';
-    loadingState.style.display = 'flex';
-    startLoadingSteps();
+    loadingSteps.style.display = 'flex';
+    setStep(1);
 
-    const payload = {
-      images: photos.map(p => ({ image_base64: p.base64, mime_type: p.mime })),
-      contexto: document.getElementById('contexto').value.trim(),
-      costo: document.getElementById('costo').value || null,
-      pvp: document.getElementById('pvp').value || null,
-    };
+    const imagesPayload = photos.map(p => ({ image_base64: p.base64, mime_type: p.mime }));
+    const contexto = document.getElementById('contexto').value.trim();
+    const costo    = document.getElementById('costo').value || null;
+    const pvp      = document.getElementById('pvp').value || null;
 
+    let identified = null;
+
+    // ── Step 1: identificar ──
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch('/api/identificar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ images: imagesPayload, contexto }),
+      });
+      const data = await res.json();
+      if (!data.error) {
+        identified = data;
+        showTypeBadge(data.tipo, data.titulo);
+      }
+    } catch { /* continue with defaults */ }
+
+    // ── Step 2: search MLU + tasar ──
+    setStep(2);
+    loadTimers.push(setTimeout(() => setStep(3), 4000));
+
+    try {
+      const res = await fetch('/api/tasar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          images: imagesPayload,
+          tipo:              identified?.tipo ?? 'LIBRO',
+          titulo:            identified?.titulo ?? '',
+          terminos_busqueda: identified?.terminos_busqueda ?? [],
+          contexto, costo, pvp,
+        }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      renderResult(data.result, data.mlu ?? []);
+      renderResult(data.result, data.mlu_data, identified, photos[0].dataUrl);
     } catch (err) {
-      loadingState.style.display = 'none';
+      clearTimers();
+      loadingSteps.style.display = 'none';
       resultEmpty.style.display = 'flex';
       errorMsg.textContent = err.message;
       errorMsg.style.display = 'block';
     } finally {
-      clearLoadTimers();
+      clearTimers();
       btnTasar.disabled = photos.length === 0;
       btnTasar.textContent = 'Tasar';
       btnTasar.classList.remove('loading');
     }
   });
 
-  // ── parse result ──
-  function extract(text, key, nextKey) {
-    const re = new RegExp(`${esc(key)}\\s*:?\\s*`, 'i');
-    const m = text.match(re);
-    if (!m) return '';
-    const start = m.index + m[0].length;
-    if (!nextKey) return text.slice(start).trim();
-    const re2 = new RegExp(`${esc(nextKey)}\\s*:?`, 'i');
-    const m2 = text.slice(start).match(re2);
-    return text.slice(start, m2 ? start + m2.index : undefined).trim();
-  }
-  function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
+  // ── RENDER ──
   function getDecision(text) {
     if (/SOLO\s+SI\s+BAJA/i.test(text)) return 'SOLO SI BAJA';
-    if (/\bCOMPRA\b/i.test(text)) return 'COMPRA';
-    if (/\bPASO\b/i.test(text)) return 'PASO';
+    if (/\bDESCARTAR\b/i.test(text))    return 'DESCARTAR';
+    if (/\bCOMPRAR\b/i.test(text))      return 'COMPRAR';
+    if (/\bCOMPRA\b/i.test(text))       return 'COMPRA';
+    if (/\bMIRAR\b/i.test(text))        return 'MIRAR';
+    if (/\bPASO\b/i.test(text))         return 'PASO';
     return null;
   }
 
   function decisionClass(d) {
-    if (d === 'COMPRA') return 'badge-compra';
-    if (d === 'SOLO SI BAJA') return 'badge-baja';
-    return 'badge-paso';
+    if (!d) return '';
+    if (/COMPRA|COMPRAR/.test(d)) return 'd-compra';
+    if (/SOLO SI BAJA|MIRAR/.test(d)) return 'd-baja';
+    return 'd-paso';
   }
-  function histBadgeClass(d) {
-    if (d === 'COMPRA') return 'hb-compra';
-    if (d === 'SOLO SI BAJA') return 'hb-baja';
-    return 'hb-paso';
+  function histDecClass(d) {
+    if (!d) return '';
+    if (/COMPRA|COMPRAR/.test(d)) return 'compra';
+    if (/SOLO SI BAJA|MIRAR/.test(d)) return 'baja';
+    return 'paso';
   }
 
-  function renderResult(text, mluData) {
-    clearLoadTimers();
-    loadingState.style.display = 'none';
+  function x2(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
+  function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+  function extractSection(text, key, nextKeys) {
+    const re = new RegExp(escRe(key) + '\\s*:?\\s*','i');
+    const m = text.match(re);
+    if (!m) return '';
+    const start = m.index + m[0].length;
+    let end = text.length;
+    for (const nk of (nextKeys ?? [])) {
+      const m2 = text.slice(start).match(new RegExp(escRe(nk)+'\\s*:?','i'));
+      if (m2 && start + m2.index < end) end = start + m2.index;
+    }
+    return text.slice(start, end).trim();
+  }
+
+  // Parse all sections generically
+  const LIBRO_KEYS   = ['LIBRO','MERCADO REAL MLU','LECTURA RÁPIDA','NÚMEROS','DECISIÓN','POR QUÉ','OJO LIBRERO','TIP'];
+  const VINTAGE_KEYS = ['OBJETO','MERCADO REAL MLU','DECISIÓN','PUNTAJES','NÚMEROS','RIESGO PRINCIPAL','INTERVENCIÓN','CIERRE COMERCIAL'];
+
+  function parseSections(text, tipo) {
+    const keys = tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS;
+    return keys.map((k, i) => {
+      const rest = keys.slice(i + 1);
+      return { key: k, content: extractSection(text, k, rest) };
+    }).filter(s => s.content);
+  }
+
+  function renderKVLines(content) {
+    const lines = content.split('\n').filter(l => l.trim());
+    return lines.map(line => {
+      const ci = line.indexOf(':');
+      if (ci > 0 && ci < 35) {
+        const k = line.slice(0, ci).replace(/^[-\s*•·]+/, '').trim();
+        const v = line.slice(ci + 1).trim();
+        if (k && v) return `<div class="kv-line"><span class="kv-key">${x2(k)}</span><span class="kv-val">${x2(v)}</span></div>`;
+      }
+      const clean = line.replace(/^[-\s*•·]+/, '').trim();
+      return clean ? `<div class="kv-line"><span class="kv-val">${x2(clean)}</span></div>` : '';
+    }).join('');
+  }
+
+  function renderMLU(mlu_data) {
+    if (!mlu_data?.busquedas?.length) return '';
+    const cards = mlu_data.busquedas.map(b => {
+      if (!b || b.total === 0 || b.error) {
+        return `<div class="mlu-card">
+          <div class="mlu-query">Busqueda: <strong>${x2(b?.termino ?? '')}</strong></div>
+          <div style="font-size:12px;color:var(--r-fg)">${b?.error ? 'Error al buscar' : 'Sin resultados en MLU Uruguay'}</div>
+        </div>`;
+      }
+      const statsHtml = b.mediana != null ? `
+        <div class="mlu-stats">
+          <div class="mlu-stat"><div class="sl">Públicaciones</div><div class="sv">${b.total}</div></div>
+          <div class="mlu-stat"><div class="sl">Mínimo</div><div class="sv">UYU ${b.precio_min}</div></div>
+          <div class="mlu-stat"><div class="sl">Máximo</div><div class="sv">UYU ${b.precio_max}</div></div>
+          <div class="mlu-stat"><div class="sl">Mediana</div><div class="sv med">UYU ${b.mediana}</div></div>
+        </div>` : `<div class="mlu-stats"><div class="mlu-stat"><div class="sl">Publicaciones</div><div class="sv">${b.total}</div></div></div>`;
+      const items = (b.titulos ?? []).map(t =>
+        `<div class="mlu-item"><span class="mi-t">${x2(t.titulo)}</span><span class="mi-p">UYU ${t.precio}</span></div>`
+      ).join('');
+      return `<div class="mlu-card">
+        <div class="mlu-query">Busqueda: <strong>${x2(b.termino)}</strong></div>
+        ${statsHtml}
+        <div class="mlu-items">${items}</div>
+      </div>`;
+    }).join('');
+    return `<div class="mlu-section">
+      <div class="mlu-header"><div class="mlu-live-dot"></div>Mercado real — MLU ahora</div>
+      <div class="mlu-cards">${cards}</div>
+    </div>`;
+  }
+
+  function renderNumbers(content, tipo) {
+    const pvp   = (content.match(/PVP[_\s\w]*:\s*(.+)/i)     || [])[1]?.trim() ?? '?';
+    const margen= (content.match(/Margen[^:]*:\s*(.+)/i)      || (content.match(/Bmáx[^:]*:\s*(.+)/i)) || [])[1]?.trim() ?? '?';
+    const conf  = (content.match(/Confianza\s*:\s*(.+)/i)     || [])[1]?.trim() ?? '?';
+    const pvpIG = (content.match(/PVP_IG\s*:\s*(.+)/i)        || [])[1]?.trim();
+    const tope  = (content.match(/Tope[^:]*:\s*(.+)/i)        || [])[1]?.trim();
+
+    const cards = [
+      { l: tipo === 'VINTAGE' ? 'PVP MLU' : 'PVP', v: pvp, hl: false },
+      { l: tipo === 'VINTAGE' ? 'Bmáx / Tope' : 'Margen', v: tope ?? margen, hl: true },
+      { l: 'Confianza', v: conf, hl: false },
+    ];
+    if (pvpIG) cards.splice(1, 0, { l: 'PVP IG', v: pvpIG, hl: false });
+
+    return cards.slice(0, 4).map(c =>
+      `<div class="num-card"><div class="num-label">${c.l}</div><div class="num-value ${c.hl ? 'hl' : ''}">${x2(c.v)}</div></div>`
+    ).join('');
+  }
+
+  function renderDecisionSub(content) {
+    const lines = content.split('\n').filter(l => l.trim() && l.includes(':'));
+    if (!lines.length) return '';
+    const html = lines.map(line => {
+      const ci = line.indexOf(':');
+      const k = line.slice(0, ci).replace(/^[-\s*]+/, '').trim();
+      const v = line.slice(ci + 1).trim();
+      return `<div class="dsub-line"><span class="dsub-key">${x2(k)}</span><span class="dsub-val">${x2(v)}</span></div>`;
+    }).join('');
+    return `<div class="decision-sub">${html}</div>`;
+  }
+
+  const SKIP_IN_ANALYSIS = new Set(['NÚMEROS', 'DECISIÓN', 'MERCADO REAL MLU']);
+  const CIERRE_KEY = 'CIERRE COMERCIAL';
+
+  function renderResult(text, mlu_data, identified, thumbSrc) {
+    clearTimers();
+    loadingSteps.style.display = 'none';
+    resultContent.style.display = 'flex';
+
+    const tipo = identified?.tipo ?? currentTipo ?? 'LIBRO';
     const decision = getDecision(text);
-    const titulo   = extract(text, 'TÍTULO', 'DECISIÓN').replace(/\n.*/s,'').trim();
-    const numBlock = extract(text, 'NÚMEROS', 'POR QUÉ');
-    const porQue   = extract(text, 'POR QUÉ', 'OJO');
-    const ojo      = extract(text, 'OJO', 'TIP').replace(/\n.*/s,'').trim();
-    const tip      = extract(text, 'TIP', null).replace(/\n.*/s,'').trim();
 
-    document.getElementById('resTitle').textContent = titulo || '';
+    // subtitle (first section = LIBRO: or OBJETO:)
+    const headerKey = tipo === 'VINTAGE' ? 'OBJETO' : 'LIBRO';
+    const headerSections = tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS;
+    const headerContent = extractSection(text, headerKey, headerSections.slice(1)).split('\n')[0].trim();
+    document.getElementById('resSubtitle').textContent = headerContent || identified?.titulo || '';
 
+    // decision badge
     const badge = document.getElementById('resBadge');
-    badge.textContent = decision || '?';
+    badge.textContent = decision ?? '?';
     badge.className = 'decision-badge ' + (decision ? decisionClass(decision) : '');
 
-    const pvpLine    = (numBlock.match(/PVP\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
-    const margenLine = (numBlock.match(/Margen\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
-    const confLine   = (numBlock.match(/Confianza\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
-    document.getElementById('resNumbers').innerHTML = `
-      <div class="num-card"><div class="num-label">PVP</div><div class="num-value">${esc2(pvpLine)}</div></div>
-      <div class="num-card"><div class="num-label">Margen</div><div class="num-value highlight">${esc2(margenLine)}</div></div>
-      <div class="num-card"><div class="num-label">Confianza</div><div class="num-value">${esc2(confLine)}</div></div>
-    `;
+    // decision sub-fields (vintage only)
+    const decContent = extractSection(text, 'DECISIÓN', (tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS).slice((tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS).indexOf('DECISIÓN') + 1));
+    document.getElementById('decisionSub').innerHTML = renderDecisionSub(decContent);
 
-    // MLU REAL
-    const mluEl = document.getElementById('resMlu');
-    const mluSearchesEl = document.getElementById('resMluSearches');
-    const searches = Array.isArray(mluData) ? mluData : [];
-    if (searches.length) {
-      mluSearchesEl.innerHTML = searches.map(s => {
-        if (s.error || s.total === 0) {
-          return `<div class="mlu-search-card">
-            <div class="mlu-search-query">Busqueda: <strong>${esc2(s.query)}</strong></div>
-            <div class="mlu-no-results">${s.error ? 'Error al buscar' : 'Sin resultados en MLU'}</div>
-          </div>`;
-        }
-        const { min, max, median } = s.stats ?? {};
-        const statsHtml = min != null ? `
-          <div class="mlu-stats">
-            <div class="mlu-stat"><span class="sl">Publicaciones: </span><span class="sv">${s.total}</span></div>
-            <div class="mlu-stat"><span class="sl">Min: </span><span class="sv">UYU ${min}</span></div>
-            <div class="mlu-stat"><span class="sl">Max: </span><span class="sv">UYU ${max}</span></div>
-            <div class="mlu-stat"><span class="sl">Mediana: </span><span class="sv med">UYU ${median}</span></div>
-          </div>` : `<div class="mlu-stats"><div class="mlu-stat"><span class="sl">Publicaciones: </span><span class="sv">${s.total}</span></div></div>`;
-        const itemsHtml = (s.items ?? []).map(i =>
-          `<div class="mlu-item"><span class="mi-title">${esc2(i.titulo)}</span><span class="mi-price">UYU ${i.precio}</span></div>`
-        ).join('');
-        return `<div class="mlu-search-card">
-          <div class="mlu-search-query">Busqueda: <strong>${esc2(s.query)}</strong></div>
-          ${statsHtml}
-          <div class="mlu-items">${itemsHtml}</div>
-        </div>`;
-      }).join('');
-      mluEl.style.display = 'block';
-    } else {
-      mluEl.style.display = 'none';
+    // MLU
+    document.getElementById('mluSection').innerHTML = renderMLU(mlu_data);
+
+    // numbers
+    const numContent = extractSection(text, 'NÚMEROS', (tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS).slice((tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS).indexOf('NÚMEROS') + 1));
+    const numGrid = document.getElementById('numbersGrid');
+    numGrid.innerHTML = renderNumbers(numContent, tipo);
+    numGrid.style.gridTemplateColumns = tipo === 'VINTAGE' ? 'repeat(4,1fr)' : 'repeat(3,1fr)';
+
+    // analysis sections
+    const sections = parseSections(text, tipo);
+    const analysisEl = document.getElementById('analysisSections');
+    const sectionKeys = tipo === 'VINTAGE' ? VINTAGE_KEYS : LIBRO_KEYS;
+
+    let analysisHtml = '';
+    for (const sec of sections) {
+      if (SKIP_IN_ANALYSIS.has(sec.key)) continue;
+      if (sec.key === headerKey) continue;
+      if (sec.key === CIERRE_KEY) {
+        // render cierre as copy cards
+        const clines = sec.content.split('\n').filter(l => l.trim());
+        const cCards = clines.map(line => {
+          const ci = line.indexOf(':');
+          if (ci < 1) return '';
+          const k = line.slice(0, ci).replace(/^[-\s*]+/, '').trim();
+          const v = line.slice(ci + 1).trim();
+          return `<div class="cierre-card"><div class="cierre-label">${x2(k)}</div><div class="cierre-val">${x2(v)}</div></div>`;
+        }).join('');
+        analysisHtml += `<div class="res-section"><div class="res-section-title">${x2(sec.key)}</div>${cCards}</div>`;
+        continue;
+      }
+      const hasKV = sec.content.includes(':') && sec.content.split('\n').some(l => { const ci = l.indexOf(':'); return ci > 0 && ci < 35; });
+      const innerHtml = hasKV ? renderKVLines(sec.content) : `<div class="res-text">${x2(sec.content)}</div>`;
+      analysisHtml += `<div class="res-section"><div class="res-section-title">${x2(sec.key)}</div>${innerHtml}</div>`;
     }
+    analysisEl.innerHTML = analysisHtml;
 
-    const whyEl = document.getElementById('resWhy');
-    const whyLines = document.getElementById('resWhyLines');
-    if (porQue) {
-      const lines = porQue.split('\n').map(l => l.trim()).filter(Boolean);
-      whyLines.innerHTML = lines.map(line => {
-        if (/^\+/.test(line)) return `<div class="why-line"><span class="sign sign-pos">+</span><span>${esc2(line.replace(/^\+\s*/,''))}</span></div>`;
-        if (/^-/.test(line))  return `<div class="why-line"><span class="sign sign-neg">-</span><span>${esc2(line.replace(/^-\s*/,''))}</span></div>`;
-        return `<div class="why-line"><span>${esc2(line)}</span></div>`;
-      }).join('');
-      whyEl.style.display = 'block';
-    } else {
-      whyEl.style.display = 'none';
-    }
-
-    document.getElementById('resOjoTip').innerHTML = `
-      ${ojo ? `<div class="ojo-tip-card"><div class="card-label">Ojo librero</div><div class="card-text">${esc2(ojo)}</div></div>` : ''}
-      ${tip ? `<div class="ojo-tip-card"><div class="card-label">Tip</div><div class="card-text">${esc2(tip)}</div></div>` : ''}
-    `;
-
-    resultContent.style.display = 'block';
-
-    historial.unshift({ decision, titulo: titulo || text.slice(0,40), text, mluData: searches });
+    // historial
+    const timestamp = Date.now();
+    const titulo = headerContent || identified?.titulo || text.slice(0, 40);
+    historial.unshift({ decision, tipo, titulo, text, mlu_data, identified, thumbSrc, timestamp });
     renderHistBtn();
 
+    // mobile scroll
     if (window.innerWidth <= 680) {
       document.getElementById('panelResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
-
-  function esc2(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
   // ── historial ──
   function renderHistBtn() {
@@ -784,22 +799,37 @@
     histBtn.textContent = `Historial (${historial.length})`;
   }
 
+  function relTime(ts) {
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60)  return 'ahora';
+    if (diff < 3600) return `${Math.floor(diff/60)}m`;
+    return `${Math.floor(diff/3600)}h`;
+  }
+
   histBtn.addEventListener('click', () => {
-    histListScroll.innerHTML = historial.map((e, i) => `
+    histScroll.innerHTML = historial.map((e, i) => `
       <div class="hist-entry" data-i="${i}">
-        <span class="hist-badge-sm ${histBadgeClass(e.decision)}">${e.decision || '?'}</span>
-        <span class="hist-entry-text">${esc2(e.titulo)}</span>
-      </div>
-    `).join('');
-    histListScroll.querySelectorAll('.hist-entry').forEach(el => {
+        <img class="hist-thumb" src="${e.thumbSrc ?? ''}" alt="" />
+        <div class="hist-info">
+          <div class="hist-badges">
+            <span class="h-tipo ${(e.tipo ?? 'LIBRO').toLowerCase()}">${e.tipo ?? 'LIBRO'}</span>
+            <span class="h-dec ${histDecClass(e.decision)}">${e.decision ?? '?'}</span>
+          </div>
+          <div class="hist-title">${x2(e.titulo ?? '')}</div>
+        </div>
+        <span class="hist-time">${relTime(e.timestamp)}</span>
+      </div>`).join('');
+    histScroll.querySelectorAll('.hist-entry').forEach(el => {
       el.addEventListener('click', () => {
         histDrawer.classList.remove('open');
         const e = historial[+el.dataset.i];
-        renderResult(e.text, e.mluData);
+        if (e.identified) showTypeBadge(e.identified.tipo, e.identified.titulo);
+        renderResult(e.text, e.mlu_data, e.identified, e.thumbSrc);
       });
     });
     histDrawer.classList.add('open');
   });
+
   histClose.addEventListener('click', () => histDrawer.classList.remove('open'));
 </script>
 

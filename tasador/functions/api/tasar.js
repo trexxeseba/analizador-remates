@@ -1,76 +1,127 @@
-const SYSTEM_PROMPT = `Sos TASADOR DE LIBROS DE REMATE URUGUAY para Amado Libros / Amado Vintage.
-Evaluás si un libro conviene comprarlo para revender en Mercado Libre Uruguay. Criterio comercial puro.
+const SYSTEM_PROMPT = `Sos el comité de compras de AMADO — operación uruguaya de reventa que cubre dos líneas: AMADO LIBROS (libros importados y usados en MLU) y AMADO VINTAGE (objetos usados, vintage, industriales, publicitarios, médicos y coleccionables en MLU e Instagram).
 
-REGLAS CRÍTICAS:
-- Los datos de MLU que te pasan son REALES y ACTUALES — usalos como única fuente de precios.
-- Si el bloque MLU dice "Sin resultados" o total=0: poné UYU ? en PVP y margen, Confianza: BAJA.
-- NUNCA inventes precios. Si no hay datos verificables, decilo explícitamente.
-- Comisión ML: 15%. Envío estimado: UYU 200. Ganancia mínima aceptable: UYU 300.
-- No descartes por tema: religión, autoayuda, historia local, folklore, esoterismo son válidos.
-- Penalizá fuerte: humedad, hongos, faltantes, enciclopedia incompleta, manual desactualizado.
-- Para calcular PVP usá la mediana de MLU si hay datos. Para margen: PVP × 0.85 − 200 − costo.
+Recibís una imagen con tipo ya detectado (LIBRO o VINTAGE) y datos reales de MLU Uruguay. Usá esos datos como base. No inventes precios ni comparables.
 
-FORMATO DE SALIDA — exactamente este, sin agregar ni quitar secciones:
+REGLAS DURAS PARA AMBOS TIPOS:
+- Los datos MLU provistos son reales y recientes. Usalos como base principal.
+- Si MLU dice "sin comparables": marcá MERCADO NO VERIFICADO y bajá confianza.
+- No uses precios de España, Argentina, eBay ni Etsy como base de PVP.
+- No inventes rareza, historia, autenticidad, época ni demanda.
+- Tono: rioplatense, plano, sin emojis, sin HTML.
+- Cierre siempre: Amado Libros (libros) o Amado Vintage (objetos).
 
-TÍTULO: [nombre del libro o descripción del lote]
+CONTEXTO OPERATIVO:
+- Canal principal: Mercado Libre Uruguay
+- Canal secundario (solo vintage fotogénico): Instagram @amadovintage
+- Comisión MLU: 15%
+- Envío estimado: UYU 200
+- Ganancia mínima libros: UYU 300
+- Tope puja vintage NEGOCIO puro: UYU 2000
 
-DECISIÓN: [COMPRA / SOLO SI BAJA / PASO]
+FÓRMULAS:
+- Bmáx MLU = (PVP × 0.84 − 400 − 500) / (1 + comisión_remate)
+- Bmáx IG = (PVP × 0.95 − 400 − 500) / (1 + comisión_remate)
+- Comisiones: Castells 0.1791 / Bavastro 0.1815 / Rematas 0.1331 / otra: no calcular
+- Fragilidad: −15% sobre Bmáx
+- Peso/volumen alto: −10% sobre Bmáx
+
+====================
+SI TIPO = LIBRO
+====================
+
+Criterio: ¿se vende en MLU Uruguay? ¿a qué precio? ¿con qué margen?
+No evaluás si el libro es bueno literariamente.
+
+No descartes por: religión, espiritualidad, autoayuda, medicina popular, historia local, folklore, esoterismo, biografías devocionales.
+Penalizá fuerte: humedad, hongos, subrayado fuerte, enciclopedia incompleta, manual desactualizado, edición de club saturada.
+
+FORMATO LIBRO:
+
+LIBRO:
+[identificación]
+
+MERCADO REAL MLU:
+[transcribir los datos MLU provistos: búsquedas, precios, títulos encontrados]
+
+LECTURA RÁPIDA:
+- Estado:
+- Nicho:
+- Rareza local:
+- Potencial comercial:
+- Riesgo principal:
 
 NÚMEROS:
-PVP: UYU [número basado en mediana MLU, o ?]
-Margen: UYU [número calculado, o ?]
-Confianza: [ALTA / MEDIA / BAJA]
+- PVP probable:
+- Costo total estimado:
+- Margen estimado:
+- Confianza: ALTA / MEDIA / BAJA
+
+DECISIÓN: COMPRA / SOLO SI BAJA / PASO
 
 POR QUÉ:
-+ [razón principal a favor, 1 oración]
-- [riesgo principal, 1 oración]
+- Motivo principal:
+- Riesgo principal:
+- Qué tendría que pasar para mejorar:
 
-OJO: [observación concreta del librero, 1 oración]
+OJO LIBRERO:
+[observación concreta]
 
-TIP: [cómo publicarlo o fotografiarlo, 1 oración]
+TIP:
+[cómo publicarlo o titularlo]
 
-TONO: Español rioplatense. Directo. Sin humo.`;
+====================
+SI TIPO = VINTAGE
+====================
+
+Criterio: ¿conviene comprar para revender en Uruguay? ¿MLU, IG o ambos?
+
+No inventés rareza ni historia. Si la pieza no es fotogénica, no la fuerces a IG.
+Descartá rápido si: clavo evidente, nicho chico, frágil sin compensación, sin mercado local claro.
+
+FORMATO VINTAGE:
+
+OBJETO:
+[identificación, material, estado, época si verificable]
+
+MERCADO REAL MLU:
+[transcribir los datos MLU provistos]
+
+DECISIÓN: COMPRAR / MIRAR / DESCARTAR
+- Propósito: NEGOCIO / REPUTACIÓN / NEGOCIO+REPUTACIÓN
+- Canal: MLU / IG / AMBOS
+- Fotografiabilidad: ALTA / MEDIA / BAJA
+- Motivo en una línea
+
+PUNTAJES (1-10):
+- Rotación:
+- Margen:
+- Logística:
+- Visual:
+- Promedio ponderado:
+
+NÚMEROS:
+- PVP_MLU:
+- PVP_IG:
+- Bmáx calculado:
+- Tope de puja recomendado:
+- Confianza: ALTA / MEDIA / BAJA
+
+RIESGO PRINCIPAL:
+[uno solo, una línea]
+
+INTERVENCIÓN:
+[NO TOCAR / LIMPIEZA MÍNIMA / RESTAURACIÓN COMERCIAL]
+
+CIERRE COMERCIAL:
+- Título MLU (máx 60 caracteres):
+- Argumento MLU:
+- Copy IG (si aplica):`;
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
-
-async function identifyBook(apiKey, imageBase64, mimeType) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "claude-haiku-4-5-20251001",
-      max_tokens: 120,
-      messages: [{
-        role: "user",
-        content: [
-          { type: "image", source: { type: "base64", media_type: mimeType, data: imageBase64 } },
-          {
-            type: "text",
-            text: 'Identificá este libro. Respondé ÚNICAMENTE con JSON válido (sin markdown, sin texto extra): {"titulo":"...","autor":"...","queries":["q1","q2","q3"]} — queries: 3 términos de búsqueda distintos para MLU Uruguay (1: título+autor corto, 2: solo título, 3: tema/género). Si es lote, usá el libro más valioso visible.',
-          },
-        ],
-      }],
-    }),
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  const raw = data?.content?.[0]?.text ?? "";
-  try {
-    // strip any markdown fences or leading/trailing text
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    return jsonMatch ? JSON.parse(jsonMatch[0]) : null;
-  } catch {
-    return null;
-  }
-}
 
 function calcStats(prices) {
   if (!prices.length) return { min: null, max: null, median: null };
@@ -82,39 +133,44 @@ function calcStats(prices) {
   return { min: sorted[0], max: sorted[sorted.length - 1], median };
 }
 
-async function searchMLU(query) {
-  // No category filter — more permissive, catches more listings
-  const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(query)}&limit=10`;
+async function searchMLU(termino) {
+  const url = `https://api.mercadolibre.com/sites/MLU/search?q=${encodeURIComponent(termino)}&limit=10`;
   try {
     const res = await fetch(url);
-    if (!res.ok) return { query, error: `HTTP ${res.status}`, total: 0, items: [], stats: {} };
+    if (!res.ok) return { termino, error: `HTTP ${res.status}`, total: 0, titulos: [], stats: {} };
     const data = await res.json();
-    const items = (data.results ?? []).slice(0, 5).map(item => ({
-      titulo: item.title,
-      precio: item.price,
-      condicion: item.condition === "new" ? "nuevo" : "usado",
-      vendidos: item.sold_quantity ?? 0,
+    const results = data.results ?? [];
+    const titulos = results.slice(0, 5).map(i => ({
+      titulo: i.title,
+      precio: i.price,
+      condicion: i.condition === "new" ? "nuevo" : "usado",
     }));
-    const allPrices = (data.results ?? []).map(i => i.price).filter(p => p > 0);
-    const stats = calcStats(allPrices);
-    return { query, total: data.paging?.total ?? 0, items, stats };
+    const prices = results.map(i => i.price).filter(p => p > 0);
+    const stats = calcStats(prices);
+    return {
+      termino,
+      total: data.paging?.total ?? 0,
+      precio_min: stats.min,
+      precio_max: stats.max,
+      mediana: stats.median,
+      titulos,
+    };
   } catch (e) {
-    return { query, error: e.message, total: 0, items: [], stats: {} };
+    return { termino, error: e.message, total: 0, titulos: [], stats: {} };
   }
 }
 
-function buildMLUPromptBlock(searches) {
-  if (!searches.length) return "MLU: sin búsquedas realizadas.";
-  return searches.map(s => {
-    if (s.error) return `MLU "${s.query}": error (${s.error})`;
-    if (s.total === 0) return `MLU "${s.query}": Sin resultados.`;
-    const { min, max, median } = s.stats;
-    const statsLine = min != null
-      ? `Precios: mín UYU ${min} / máx UYU ${max} / mediana UYU ${median}`
-      : "Sin precios disponibles";
-    const titles = s.items.map(i => `  • ${i.titulo} — UYU ${i.precio} (${i.condicion})`).join("\n");
-    return `MLU "${s.query}": ${s.total} publicaciones. ${statsLine}\n${titles}`;
-  }).join("\n\n");
+function buildMLUPromptBlock(busquedas) {
+  if (!busquedas.length) return "MLU: sin búsquedas realizadas.";
+  const lines = busquedas.map(b => {
+    if (b.error || b.total === 0) return `"${b.termino}": Sin resultados en MLU Uruguay.`;
+    const statsLine = b.mediana != null
+      ? `${b.total} publicaciones | min UYU ${b.precio_min} / max UYU ${b.precio_max} / mediana UYU ${b.mediana}`
+      : `${b.total} publicaciones`;
+    const items = b.titulos.map(t => `  · ${t.titulo} — UYU ${t.precio} (${t.condicion})`).join("\n");
+    return `"${b.termino}": ${statsLine}\n${items}`;
+  });
+  return lines.join("\n\n");
 }
 
 export async function onRequestOptions() {
@@ -136,7 +192,7 @@ export async function onRequestPost(context) {
     return Response.json({ error: "JSON inválido" }, { status: 400, headers: CORS_HEADERS });
   }
 
-  const { images, image_base64, mime_type, contexto, costo, pvp } = body;
+  const { images, image_base64, mime_type, tipo, titulo, terminos_busqueda, contexto, costo, pvp } = body;
 
   const imageList = images?.length
     ? images.slice(0, 6)
@@ -146,45 +202,35 @@ export async function onRequestPost(context) {
     return Response.json({ error: "Se requiere al menos una imagen" }, { status: 400, headers: CORS_HEADERS });
   }
 
-  const { image_base64: firstB64, mime_type: firstMime } = imageList[0];
+  // ── MLU searches in parallel ──
+  const terminos = Array.isArray(terminos_busqueda) ? terminos_busqueda.filter(Boolean).slice(0, 3) : [];
+  if (terminos.length === 0 && contexto) terminos.push(contexto.slice(0, 60));
 
-  // ── Step 1: identify ──
-  const identified = await identifyBook(apiKey, firstB64, firstMime);
+  const busquedas = terminos.length > 0 ? await Promise.all(terminos.map(searchMLU)) : [];
 
-  // ── Step 2: search MLU in parallel ──
-  let mluSearches = [];
-  const queries = identified?.queries?.filter(Boolean).slice(0, 3) ?? [];
+  const mluBlock = buildMLUPromptBlock(busquedas);
+  const mluResumen = busquedas.every(b => b.total === 0 || b.error)
+    ? "Sin comparables en MLU Uruguay"
+    : busquedas.map(b => b.total > 0 ? `${b.total} resultados para "${b.termino}" (mediana UYU ${b.mediana ?? '?'})` : `0 resultados para "${b.termino}"`).join(" | ");
 
-  // fallback: use contexto as last-resort query
-  if (queries.length === 0 && contexto) queries.push(contexto.slice(0, 60));
-
-  if (queries.length > 0) {
-    mluSearches = await Promise.all(queries.map(searchMLU));
-  }
-
-  // ── Step 3: build prompt and call Sonnet ──
-  const mluBlock = buildMLUPromptBlock(mluSearches);
-
+  // ── Build user message ──
   const textParts = [
-    `=== DATOS REALES DE MERCADO LIBRE URUGUAY (consultado ahora) ===\n${mluBlock}\n=== FIN DATOS MLU ===`,
+    `TIPO DETECTADO: ${tipo ?? "LIBRO"}`,
+    `OBJETO: ${titulo ?? "no identificado"}`,
+    `\nDATOS MLU REALES (no inventar nada fuera de esto):\n${mluBlock}`,
+    `\nDATOS DEL USUARIO:\n- Costo estimado: ${costo ? `UYU ${costo}` : "no informado"}\n- PVP referencia: ${pvp ? `UYU ${pvp}` : "no informado"}\n- Contexto adicional: ${contexto || "ninguno"}`,
+    `\nTasá esta pieza siguiendo el system prompt correspondiente a su tipo.`,
   ];
-  if (identified?.titulo) {
-    textParts.push(`Libro identificado: ${identified.titulo}${identified.autor ? ` — ${identified.autor}` : ""}`);
-  }
-  if (contexto) textParts.push(`Contexto del usuario: ${contexto}`);
-  if (costo)    textParts.push(`Costo pagado/estimado: UYU ${costo}`);
-  if (pvp)      textParts.push(`PVP sugerido por usuario: UYU ${pvp}`);
-  textParts.push("Usá EXCLUSIVAMENTE los datos de MLU de arriba para fundamentar PVP y margen. Si no hay datos: UYU ?");
 
   const userContent = [
     ...imageList.map(img => ({
       type: "image",
       source: { type: "base64", media_type: img.mime_type, data: img.image_base64 },
     })),
-    { type: "text", text: textParts.join("\n\n") },
+    { type: "text", text: textParts.join("\n") },
   ];
 
-  const apiResponse = await fetch("https://api.anthropic.com/v1/messages", {
+  const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
       "x-api-key": apiKey,
@@ -193,20 +239,24 @@ export async function onRequestPost(context) {
     },
     body: JSON.stringify({
       model: "claude-sonnet-4-20250514",
-      max_tokens: 500,
+      max_tokens: 1500,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content: userContent }],
     }),
   });
 
-  if (!apiResponse.ok) {
-    const errText = await apiResponse.text();
-    return Response.json({ error: `API error ${apiResponse.status}: ${errText}` }, { status: 502, headers: CORS_HEADERS });
+  if (!apiRes.ok) {
+    const errText = await apiRes.text();
+    return Response.json({ error: `API error ${apiRes.status}: ${errText}` }, { status: 502, headers: CORS_HEADERS });
   }
 
-  const data = await apiResponse.json();
+  const data = await apiRes.json();
   const result = data?.content?.[0]?.text ?? "";
 
-  // Return MLU data alongside result so frontend can display it
-  return Response.json({ result, mlu: mluSearches }, { headers: CORS_HEADERS });
+  const mlu_data = {
+    busquedas,
+    resumen: mluResumen,
+  };
+
+  return Response.json({ result, mlu_data }, { headers: CORS_HEADERS });
 }
