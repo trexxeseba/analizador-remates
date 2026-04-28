@@ -37,18 +37,8 @@
       align-items: center;
       gap: 12px;
     }
-
-    header h1 {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-    }
-
-    header span {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 400;
-    }
+    header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+    header span { font-size: 12px; color: var(--muted); font-weight: 400; }
 
     .layout {
       display: flex;
@@ -65,41 +55,104 @@
       max-width: 480px;
     }
 
+    /* UPLOAD ZONE */
     .upload-zone {
       border: 2px dashed var(--border);
       border-radius: var(--radius);
-      padding: 24px 16px;
+      padding: 20px 16px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
-      position: relative;
       background: var(--surface);
+      min-height: 90px;
     }
-
     .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: #1e2137; }
     .upload-zone input { display: none; }
 
-    .upload-zone .placeholder { color: var(--muted); font-size: 14px; }
-    .upload-zone .placeholder strong { display: block; font-size: 15px; color: var(--text); margin-bottom: 4px; }
+    .placeholder { color: var(--muted); font-size: 14px; }
+    .placeholder strong { display: block; font-size: 15px; color: var(--text); margin-bottom: 4px; }
+    .placeholder small { display: block; font-size: 12px; margin-top: 4px; color: var(--muted); opacity: 0.7; }
 
-    #preview {
-      width: 100%;
-      max-height: 280px;
-      object-fit: contain;
-      border-radius: 6px;
-      display: none;
+    /* PHOTO GRID */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
       margin-top: 12px;
     }
 
-    .change-photo {
-      display: none;
+    .photo-thumb {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--surface2);
+    }
+
+    .photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-thumb .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      background: rgba(0,0,0,0.7);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .photo-thumb .remove-btn:hover { background: var(--red); }
+
+    .photo-count {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+      text-align: right;
+    }
+    .photo-count span { color: var(--accent); font-weight: 600; }
+
+    .add-more-btn {
       margin-top: 10px;
       font-size: 13px;
       color: var(--accent);
       cursor: pointer;
       background: none;
-      border: none;
-      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      width: 100%;
+      transition: border-color 0.15s;
+    }
+    .add-more-btn:hover { border-color: var(--accent); }
+
+    /* PASTE HINT */
+    .paste-hint {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+    .paste-hint kbd {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-size: 11px;
+      font-family: monospace;
     }
 
     label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; margin-top: 16px; }
@@ -116,7 +169,6 @@
       transition: border-color 0.2s;
       font-family: inherit;
     }
-
     textarea { resize: vertical; min-height: 80px; }
     textarea:focus, input[type="number"]:focus { border-color: var(--accent); }
 
@@ -136,7 +188,6 @@
       cursor: pointer;
       transition: opacity 0.2s;
     }
-
     button.tasar:hover { opacity: 0.88; }
     button.tasar:disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -184,7 +235,6 @@
     .badge-paso   { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
 
     .result-block { margin-bottom: 18px; }
-
     .result-block h3 {
       font-size: 11px;
       font-weight: 700;
@@ -195,13 +245,7 @@
       padding-bottom: 6px;
       border-bottom: 1px solid var(--border);
     }
-
-    .result-block p {
-      font-size: 14px;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-
+    .result-block p { font-size: 14px; color: var(--text); white-space: pre-wrap; }
     .result-block .line {
       display: flex;
       gap: 8px;
@@ -209,33 +253,13 @@
       border-bottom: 1px solid var(--border);
       font-size: 14px;
     }
-
     .result-block .line:last-child { border-bottom: none; }
-
-    .result-block .line .key {
-      color: var(--muted);
-      min-width: 160px;
-      font-size: 13px;
-    }
-
+    .result-block .line .key { color: var(--muted); min-width: 160px; font-size: 13px; }
     .result-block .line .val { color: var(--text); }
-
-    .decision-text {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
+    .decision-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 
     /* HISTORIAL */
-    .historial-toggle {
-      display: none;
-    }
-
-    .historial {
-      border-top: 1px solid var(--border);
-      padding: 16px 20px;
-    }
-
+    .historial { border-top: 1px solid var(--border); padding: 16px 20px; }
     .historial h2 {
       font-size: 12px;
       font-weight: 700;
@@ -244,13 +268,7 @@
       color: var(--muted);
       margin-bottom: 12px;
     }
-
-    .hist-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
+    .hist-list { display: flex; flex-wrap: wrap; gap: 10px; }
     .hist-item {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -260,26 +278,12 @@
       transition: border-color 0.15s;
       max-width: 200px;
     }
-
     .hist-item:hover { border-color: var(--accent); }
-
-    .hist-item .hi-badge {
-      font-size: 11px;
-      font-weight: 700;
-      margin-bottom: 3px;
-    }
-
+    .hist-item .hi-badge { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
     .hi-compra { color: var(--green); }
     .hi-baja   { color: var(--yellow); }
     .hi-paso   { color: var(--red); }
-
-    .hist-item .hi-label {
-      font-size: 12px;
-      color: var(--muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .hist-item .hi-label { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .error-msg {
       background: rgba(239,68,68,0.1);
@@ -291,14 +295,33 @@
       margin-top: 12px;
     }
 
+    /* PASTE FLASH */
+    .paste-flash {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      z-index: 999;
+    }
+    .paste-flash.show { opacity: 1; }
+
     /* MOBILE */
     @media (max-width: 700px) {
       .layout { flex-direction: column; }
       .panel-form { max-width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
       .panel-result { min-height: 300px; }
       .historial { display: block; }
+      .photo-grid { grid-template-columns: repeat(3, 1fr); }
     }
-
     @media (min-width: 701px) {
       .layout { height: calc(100vh - 57px); }
       .panel-result { overflow-y: auto; }
@@ -318,13 +341,22 @@
   <!-- FORM -->
   <div class="panel-form">
     <div class="upload-zone" id="uploadZone">
-      <input type="file" id="fileInput" accept="image/*" />
+      <input type="file" id="fileInput" accept="image/*" multiple />
       <div class="placeholder" id="uploadPlaceholder">
-        <strong>Foto del libro o lote</strong>
+        <strong>Fotos del libro o lote</strong>
         Toca para seleccionar o arrastra aquí
+        <small>Hasta 6 fotos — o pega con Ctrl+V</small>
       </div>
-      <img id="preview" alt="preview" />
-      <button class="change-photo" id="changePhoto" type="button">Cambiar foto</button>
+      <div class="photo-grid" id="photoGrid"></div>
+    </div>
+
+    <div class="paste-hint" id="pasteHint" style="display:none">
+      <kbd>Ctrl+V</kbd> para pegar desde portapapeles
+    </div>
+
+    <div id="photoMeta" style="display:none">
+      <div class="photo-count">Fotos: <span id="photoCountNum">0</span> / 6</div>
+      <button class="add-more-btn" id="addMoreBtn" type="button">+ Agregar mas fotos</button>
     </div>
 
     <label for="contexto">Contexto (opcional)</label>
@@ -348,29 +380,34 @@
 
   <!-- RESULT -->
   <div class="panel-result" id="panelResult">
-    <div class="result-empty" id="resultEmpty">Subí una foto y tocá Tasar</div>
+    <div class="result-empty" id="resultEmpty">Subi una foto y toca Tasar</div>
     <div id="resultContent" style="display:none"></div>
   </div>
 </div>
 
-<!-- HISTORIAL (visible en mobile abajo, en desktop como sección) -->
 <div class="historial" id="historialSection" style="display:none">
   <h2>Historial de la sesion</h2>
   <div class="hist-list" id="histList"></div>
 </div>
 
+<div class="paste-flash" id="pasteFlash">Imagen pegada</div>
+
 <script>
   const API_URL = '/api/tasar';
+  const MAX_PHOTOS = 6;
 
-  let imageBase64 = null;
-  let imageMime = null;
+  // photos = [{base64, mime, dataUrl}]
+  let photos = [];
   let historial = [];
 
   const uploadZone    = document.getElementById('uploadZone');
   const fileInput     = document.getElementById('fileInput');
-  const preview       = document.getElementById('preview');
-  const placeholder   = document.getElementById('uploadPlaceholder');
-  const changePhoto   = document.getElementById('changePhoto');
+  const photoGrid     = document.getElementById('photoGrid');
+  const photoMeta     = document.getElementById('photoMeta');
+  const photoCountNum = document.getElementById('photoCountNum');
+  const addMoreBtn    = document.getElementById('addMoreBtn');
+  const uploadPH      = document.getElementById('uploadPlaceholder');
+  const pasteHint     = document.getElementById('pasteHint');
   const btnTasar      = document.getElementById('btnTasar');
   const spinner       = document.getElementById('spinner');
   const errorMsg      = document.getElementById('errorMsg');
@@ -379,52 +416,103 @@
   const resultContent = document.getElementById('resultContent');
   const historialSec  = document.getElementById('historialSection');
   const histList      = document.getElementById('histList');
+  const pasteFlash    = document.getElementById('pasteFlash');
 
-  // Upload zone click
+  // ── Upload zone click ──
   uploadZone.addEventListener('click', (e) => {
-    if (e.target === changePhoto) return;
-    fileInput.click();
+    if (e.target === addMoreBtn || e.target.classList.contains('remove-btn')) return;
+    if (photos.length < MAX_PHOTOS) fileInput.click();
   });
 
-  changePhoto.addEventListener('click', (e) => {
+  addMoreBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    fileInput.click();
+    if (photos.length < MAX_PHOTOS) fileInput.click();
   });
 
-  // Drag & drop
+  // ── File input change ──
+  fileInput.addEventListener('change', () => {
+    const files = Array.from(fileInput.files);
+    files.forEach(f => addFile(f));
+    fileInput.value = '';
+  });
+
+  // ── Drag & drop ──
   uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+  uploadZone.addEventListener('dragleave', (e) => {
+    if (!uploadZone.contains(e.relatedTarget)) uploadZone.classList.remove('drag');
+  });
   uploadZone.addEventListener('drop', (e) => {
     e.preventDefault();
     uploadZone.classList.remove('drag');
-    const file = e.dataTransfer.files[0];
-    if (file) loadFile(file);
+    Array.from(e.dataTransfer.files).forEach(f => addFile(f));
   });
 
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) loadFile(fileInput.files[0]);
+  // ── Clipboard paste (Ctrl+V anywhere) ──
+  document.addEventListener('paste', (e) => {
+    const items = Array.from(e.clipboardData?.items ?? []);
+    const imageItems = items.filter(i => i.type.startsWith('image/'));
+    if (imageItems.length === 0) return;
+    e.preventDefault();
+    imageItems.forEach(item => {
+      const file = item.getAsFile();
+      if (file) addFile(file);
+    });
+    showPasteFlash();
   });
 
-  function loadFile(file) {
+  function showPasteFlash() {
+    pasteFlash.classList.add('show');
+    setTimeout(() => pasteFlash.classList.remove('show'), 1800);
+  }
+
+  function addFile(file) {
     if (!file.type.startsWith('image/')) return;
-    imageMime = file.type;
+    if (photos.length >= MAX_PHOTOS) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       const dataUrl = e.target.result;
-      // strip data:mime;base64, prefix
-      imageBase64 = dataUrl.split(',')[1];
-      preview.src = dataUrl;
-      preview.style.display = 'block';
-      placeholder.style.display = 'none';
-      changePhoto.style.display = 'inline';
-      btnTasar.disabled = false;
+      const base64 = dataUrl.split(',')[1];
+      photos.push({ base64, mime: file.type, dataUrl });
+      renderPhotos();
     };
     reader.readAsDataURL(file);
   }
 
-  // TASAR
+  function removePhoto(idx) {
+    photos.splice(idx, 1);
+    renderPhotos();
+  }
+
+  function renderPhotos() {
+    const hasPhotos = photos.length > 0;
+    uploadPH.style.display = hasPhotos ? 'none' : 'block';
+    photoMeta.style.display = hasPhotos ? 'block' : 'none';
+    pasteHint.style.display = hasPhotos ? 'none' : 'block';
+    photoCountNum.textContent = photos.length;
+    addMoreBtn.style.display = photos.length < MAX_PHOTOS ? 'block' : 'none';
+    btnTasar.disabled = photos.length === 0;
+
+    photoGrid.innerHTML = photos.map((p, i) => `
+      <div class="photo-thumb">
+        <img src="${p.dataUrl}" alt="foto ${i+1}" />
+        <button class="remove-btn" data-idx="${i}" type="button" title="Eliminar">x</button>
+      </div>
+    `).join('');
+
+    photoGrid.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removePhoto(+btn.dataset.idx);
+      });
+    });
+  }
+
+  // show paste hint on load
+  pasteHint.style.display = 'block';
+
+  // ── TASAR ──
   btnTasar.addEventListener('click', async () => {
-    if (!imageBase64) return;
+    if (photos.length === 0) return;
 
     errorMsg.style.display = 'none';
     btnTasar.disabled = true;
@@ -433,8 +521,7 @@
     resultContent.style.display = 'none';
 
     const payload = {
-      image_base64: imageBase64,
-      mime_type: imageMime,
+      images: photos.map(p => ({ image_base64: p.base64, mime_type: p.mime })),
       contexto: document.getElementById('contexto').value.trim(),
       costo: document.getElementById('costo').value || null,
       pvp: document.getElementById('pvp').value || null,
@@ -446,22 +533,20 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
       const data = await res.json();
-
       if (data.error) throw new Error(data.error);
-
-      renderResult(data.result, preview.src);
+      renderResult(data.result, photos[0].dataUrl);
     } catch (err) {
       errorMsg.textContent = 'Error: ' + err.message;
       errorMsg.style.display = 'block';
       resultEmpty.style.display = 'flex';
     } finally {
       spinner.style.display = 'none';
-      btnTasar.disabled = false;
+      btnTasar.disabled = photos.length === 0;
     }
   });
 
+  // ── RENDER RESULT ──
   function getDecision(text) {
     if (/SOLO SI BAJA/i.test(text)) return 'SOLO SI BAJA';
     if (/\bCOMPRA\b/i.test(text)) return 'COMPRA';
@@ -470,64 +555,54 @@
   }
 
   function badgeClass(decision) {
-    if (!decision) return '';
     if (decision === 'COMPRA') return 'badge-compra';
     if (decision === 'SOLO SI BAJA') return 'badge-baja';
     return 'badge-paso';
   }
 
   function histClass(decision) {
-    if (!decision) return '';
     if (decision === 'COMPRA') return 'hi-compra';
     if (decision === 'SOLO SI BAJA') return 'hi-baja';
     return 'hi-paso';
   }
 
-  // Sections to parse from the result text
   const SECTIONS = [
-    { key: 'LIBRO / LOTE',    label: 'Libro / Lote' },
-    { key: 'LECTURA RÁPIDA',  label: 'Lectura Rapida' },
-    { key: 'MERCADO',         label: 'Mercado' },
-    { key: 'MATRIZ',          label: 'Matriz' },
-    { key: 'NÚMEROS',         label: 'Numeros' },
-    { key: 'DECISIÓN',        label: 'Decision' },
-    { key: 'POR QUÉ',         label: 'Por Que' },
-    { key: 'OJO LIBRERO',     label: 'Ojo Librero' },
-    { key: 'TIP PRÁCTICO',    label: 'Tip Practico' },
+    { key: 'LIBRO / LOTE',   label: 'Libro / Lote' },
+    { key: 'LECTURA RÁPIDA', label: 'Lectura Rapida' },
+    { key: 'MERCADO',        label: 'Mercado' },
+    { key: 'MATRIZ',         label: 'Matriz' },
+    { key: 'NÚMEROS',        label: 'Numeros' },
+    { key: 'DECISIÓN',       label: 'Decision' },
+    { key: 'POR QUÉ',        label: 'Por Que' },
+    { key: 'OJO LIBRERO',    label: 'Ojo Librero' },
+    { key: 'TIP PRÁCTICO',   label: 'Tip Practico' },
   ];
+
+  function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
   function parseResult(text) {
     const result = [];
     for (let i = 0; i < SECTIONS.length; i++) {
-      const current = SECTIONS[i];
-      const next = SECTIONS[i + 1];
-      const startRe = new RegExp(`${escapeRe(current.key)}\\s*:?\\s*`, 'i');
-      const startMatch = text.match(startRe);
+      const cur = SECTIONS[i], nxt = SECTIONS[i + 1];
+      const startMatch = text.match(new RegExp(`${escapeRe(cur.key)}\\s*:?\\s*`, 'i'));
       if (!startMatch) continue;
       const start = startMatch.index + startMatch[0].length;
       let end = text.length;
-      if (next) {
-        const endRe = new RegExp(`${escapeRe(next.key)}\\s*:?`, 'i');
-        const endMatch = text.slice(start).match(endRe);
+      if (nxt) {
+        const endMatch = text.slice(start).match(new RegExp(`${escapeRe(nxt.key)}\\s*:?`, 'i'));
         if (endMatch) end = start + endMatch.index;
       }
-      const content = text.slice(start, end).trim();
-      result.push({ label: current.label, content });
+      result.push({ label: cur.label, content: text.slice(start, end).trim() });
     }
     return result;
   }
 
-  function escapeRe(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
   function renderKeyLines(content) {
-    const lines = content.split('\n').filter(l => l.trim());
-    return lines.map(line => {
-      const colonIdx = line.indexOf(':');
-      if (colonIdx > 0 && colonIdx < 30) {
-        const key = line.slice(0, colonIdx).replace(/^[-\s*]+/, '').trim();
-        const val = line.slice(colonIdx + 1).trim();
+    return content.split('\n').filter(l => l.trim()).map(line => {
+      const ci = line.indexOf(':');
+      if (ci > 0 && ci < 30) {
+        const key = line.slice(0, ci).replace(/^[-\s*]+/, '').trim();
+        const val = line.slice(ci + 1).trim();
         return `<div class="line"><span class="key">${key}</span><span class="val">${val}</span></div>`;
       }
       const clean = line.replace(/^[-\s*]+/, '').trim();
@@ -538,15 +613,11 @@
   function renderResult(text, imgSrc) {
     const decision = getDecision(text);
     const sections = parseResult(text);
-
     let html = '';
 
-    if (decision) {
-      html += `<div class="badge ${badgeClass(decision)}">${decision}</div>`;
-    }
+    if (decision) html += `<div class="badge ${badgeClass(decision)}">${decision}</div>`;
 
     if (sections.length === 0) {
-      // fallback: show raw
       html += `<div class="result-block"><p>${text.replace(/</g,'&lt;')}</p></div>`;
     } else {
       for (const sec of sections) {
@@ -557,10 +628,8 @@
           <h3>${sec.label}</h3>
           ${isDecision
             ? `<div class="decision-text">${sec.content.replace(/</g,'&lt;')}</div>`
-            : isList
-              ? renderKeyLines(sec.content)
-              : `<p>${sec.content.replace(/</g,'&lt;')}</p>`
-          }
+            : isList ? renderKeyLines(sec.content)
+            : `<p>${sec.content.replace(/</g,'&lt;')}</p>`}
         </div>`;
       }
     }
@@ -569,37 +638,27 @@
     resultContent.style.display = 'block';
     resultEmpty.style.display = 'none';
 
-    // Add to historial
-    const snippet = (() => {
-      const loteSection = sections.find(s => s.label === 'Libro / Lote');
-      if (loteSection) return loteSection.content.slice(0, 40);
-      return text.slice(0, 40);
-    })();
-
-    const entry = { decision, snippet, text, imgSrc };
-    historial.unshift(entry);
+    const loteSection = sections.find(s => s.label === 'Libro / Lote');
+    const snippet = (loteSection?.content ?? text).slice(0, 40);
+    historial.unshift({ decision, snippet, text, imgSrc });
     renderHistorial();
 
-    // scroll result into view on mobile
-    if (window.innerWidth <= 700) {
-      panelResult.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (window.innerWidth <= 700) panelResult.scrollIntoView({ behavior: 'smooth' });
   }
 
   function renderHistorial() {
     if (historial.length === 0) return;
     historialSec.style.display = 'block';
-    histList.innerHTML = historial.map((entry, idx) => `
-      <div class="hist-item" data-idx="${idx}">
-        <div class="hi-badge ${histClass(entry.decision)}">${entry.decision || '?'}</div>
-        <div class="hi-label">${entry.snippet.replace(/</g,'&lt;')}...</div>
+    histList.innerHTML = historial.map((e, i) => `
+      <div class="hist-item" data-idx="${i}">
+        <div class="hi-badge ${histClass(e.decision)}">${e.decision || '?'}</div>
+        <div class="hi-label">${e.snippet.replace(/</g,'&lt;')}...</div>
       </div>
     `).join('');
-
     histList.querySelectorAll('.hist-item').forEach(el => {
       el.addEventListener('click', () => {
-        const entry = historial[+el.dataset.idx];
-        renderResult(entry.text, entry.imgSrc);
+        const e = historial[+el.dataset.idx];
+        renderResult(e.text, e.imgSrc);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });

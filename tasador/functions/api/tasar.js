@@ -92,14 +92,21 @@ export async function onRequestPost(context) {
     return Response.json({ error: "JSON inválido" }, { status: 400, headers: CORS_HEADERS });
   }
 
-  const { image_base64, mime_type, contexto, costo, pvp } = body;
+  const { images, image_base64, mime_type, contexto, costo, pvp } = body;
 
-  if (!image_base64 || !mime_type) {
-    return Response.json({ error: "Faltan image_base64 y mime_type" }, { status: 400, headers: CORS_HEADERS });
+  // accept array (new) or single image (legacy)
+  const imageList = images?.length
+    ? images.slice(0, 6)
+    : (image_base64 && mime_type ? [{ image_base64, mime_type }] : []);
+
+  if (imageList.length === 0) {
+    return Response.json({ error: "Se requiere al menos una imagen" }, { status: 400, headers: CORS_HEADERS });
   }
 
+  const { image_base64: firstB64, mime_type: firstMime } = imageList[0];
+
   // Step 1: identify book + Step 2: search MLU — run identification first, then parallel searches
-  const identified = await identifyBook(apiKey, image_base64, mime_type);
+  const identified = await identifyBook(apiKey, firstB64, firstMime);
 
   let mluContext = "";
   if (identified?.queries?.length) {
@@ -120,7 +127,10 @@ export async function onRequestPost(context) {
   textParts.push("Usá los datos de MLU de arriba como evidencia primaria para la sección MERCADO y los NÚMEROS. No inventes precios que no estén en esos datos.");
 
   const userContent = [
-    { type: "image", source: { type: "base64", media_type: mime_type, data: image_base64 } },
+    ...imageList.map(img => ({
+      type: "image",
+      source: { type: "base64", media_type: img.mime_type, data: img.image_base64 },
+    })),
     { type: "text", text: textParts.join("\n\n") },
   ];
 
