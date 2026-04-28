@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tasador — Amado Libros</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #242736;
+      --border: #2e3248;
+      --text: #e2e4ef;
+      --muted: #7b82a0;
+      --accent: #6c7bff;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #ef4444;
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    header span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .layout {
+      display: flex;
+      gap: 0;
+      min-height: calc(100vh - 57px);
+    }
+
+    /* FORM PANEL */
+    .panel-form {
+      flex: 1;
+      min-width: 0;
+      padding: 20px;
+      border-right: 1px solid var(--border);
+      max-width: 480px;
+    }
+
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+      background: var(--surface);
+    }
+
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: #1e2137; }
+    .upload-zone input { display: none; }
+
+    .upload-zone .placeholder { color: var(--muted); font-size: 14px; }
+    .upload-zone .placeholder strong { display: block; font-size: 15px; color: var(--text); margin-bottom: 4px; }
+
+    #preview {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      border-radius: 6px;
+      display: none;
+      margin-top: 12px;
+    }
+
+    .change-photo {
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; margin-top: 16px; }
+
+    textarea, input[type="number"] {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+    textarea:focus, input[type="number"]:focus { border-color: var(--accent); }
+
+    .row-fields { display: flex; gap: 12px; }
+    .row-fields > * { flex: 1; }
+
+    button.tasar {
+      width: 100%;
+      margin-top: 20px;
+      padding: 13px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button.tasar:hover { opacity: 0.88; }
+    button.tasar:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .spinner {
+      display: none;
+      margin: 20px auto 0;
+      width: 28px; height: 28px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESULT PANEL */
+    .panel-result {
+      flex: 1.4;
+      min-width: 0;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .result-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+    .badge-compra { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+    .badge-baja   { background: rgba(234,179,8,0.15);  color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
+    .badge-paso   { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
+
+    .result-block { margin-bottom: 18px; }
+
+    .result-block h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-block p {
+      font-size: 14px;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .result-block .line {
+      display: flex;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .result-block .line:last-child { border-bottom: none; }
+
+    .result-block .line .key {
+      color: var(--muted);
+      min-width: 160px;
+      font-size: 13px;
+    }
+
+    .result-block .line .val { color: var(--text); }
+
+    .decision-text {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    /* HISTORIAL */
+    .historial-toggle {
+      display: none;
+    }
+
+    .historial {
+      border-top: 1px solid var(--border);
+      padding: 16px 20px;
+    }
+
+    .historial h2 {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .hist-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .hist-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      max-width: 200px;
+    }
+
+    .hist-item:hover { border-color: var(--accent); }
+
+    .hist-item .hi-badge {
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+
+    .hi-compra { color: var(--green); }
+    .hi-baja   { color: var(--yellow); }
+    .hi-paso   { color: var(--red); }
+
+    .hist-item .hi-label {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .error-msg {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: var(--red);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 12px;
+    }
+
+    /* MOBILE */
+    @media (max-width: 700px) {
+      .layout { flex-direction: column; }
+      .panel-form { max-width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+      .panel-result { min-height: 300px; }
+      .historial { display: block; }
+    }
+
+    @media (min-width: 701px) {
+      .layout { height: calc(100vh - 57px); }
+      .panel-result { overflow-y: auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Tasador <span style="color:var(--accent)">Amado Libros</span></h1>
+    <span>Remates Uruguay — Mercado Libre UYU</span>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- FORM -->
+  <div class="panel-form">
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*" />
+      <div class="placeholder" id="uploadPlaceholder">
+        <strong>Foto del libro o lote</strong>
+        Toca para seleccionar o arrastra aquí
+      </div>
+      <img id="preview" alt="preview" />
+      <button class="change-photo" id="changePhoto" type="button">Cambiar foto</button>
+    </div>
+
+    <label for="contexto">Contexto (opcional)</label>
+    <textarea id="contexto" placeholder="Ej: lote de 3 libros de historia, buen estado general..."></textarea>
+
+    <div class="row-fields">
+      <div>
+        <label for="costo">Costo UYU</label>
+        <input type="number" id="costo" placeholder="0" min="0" />
+      </div>
+      <div>
+        <label for="pvp">PVP referencia UYU</label>
+        <input type="number" id="pvp" placeholder="0" min="0" />
+      </div>
+    </div>
+
+    <button class="tasar" id="btnTasar" disabled>Tasar</button>
+    <div class="spinner" id="spinner"></div>
+    <div class="error-msg" id="errorMsg" style="display:none"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="panel-result" id="panelResult">
+    <div class="result-empty" id="resultEmpty">Subí una foto y tocá Tasar</div>
+    <div id="resultContent" style="display:none"></div>
+  </div>
+</div>
+
+<!-- HISTORIAL (visible en mobile abajo, en desktop como sección) -->
+<div class="historial" id="historialSection" style="display:none">
+  <h2>Historial de la sesion</h2>
+  <div class="hist-list" id="histList"></div>
+</div>
+
+<script>
+  const API_URL = '/api/tasar';
+
+  let imageBase64 = null;
+  let imageMime = null;
+  let historial = [];
+
+  const uploadZone    = document.getElementById('uploadZone');
+  const fileInput     = document.getElementById('fileInput');
+  const preview       = document.getElementById('preview');
+  const placeholder   = document.getElementById('uploadPlaceholder');
+  const changePhoto   = document.getElementById('changePhoto');
+  const btnTasar      = document.getElementById('btnTasar');
+  const spinner       = document.getElementById('spinner');
+  const errorMsg      = document.getElementById('errorMsg');
+  const panelResult   = document.getElementById('panelResult');
+  const resultEmpty   = document.getElementById('resultEmpty');
+  const resultContent = document.getElementById('resultContent');
+  const historialSec  = document.getElementById('historialSection');
+  const histList      = document.getElementById('histList');
+
+  // Upload zone click
+  uploadZone.addEventListener('click', (e) => {
+    if (e.target === changePhoto) return;
+    fileInput.click();
+  });
+
+  changePhoto.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  // Drag & drop
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadFile(fileInput.files[0]);
+  });
+
+  function loadFile(file) {
+    if (!file.type.startsWith('image/')) return;
+    imageMime = file.type;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target.result;
+      // strip data:mime;base64, prefix
+      imageBase64 = dataUrl.split(',')[1];
+      preview.src = dataUrl;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+      changePhoto.style.display = 'inline';
+      btnTasar.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // TASAR
+  btnTasar.addEventListener('click', async () => {
+    if (!imageBase64) return;
+
+    errorMsg.style.display = 'none';
+    btnTasar.disabled = true;
+    spinner.style.display = 'block';
+    resultEmpty.style.display = 'none';
+    resultContent.style.display = 'none';
+
+    const payload = {
+      image_base64: imageBase64,
+      mime_type: imageMime,
+      contexto: document.getElementById('contexto').value.trim(),
+      costo: document.getElementById('costo').value || null,
+      pvp: document.getElementById('pvp').value || null,
+    };
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (data.error) throw new Error(data.error);
+
+      renderResult(data.result, preview.src);
+    } catch (err) {
+      errorMsg.textContent = 'Error: ' + err.message;
+      errorMsg.style.display = 'block';
+      resultEmpty.style.display = 'flex';
+    } finally {
+      spinner.style.display = 'none';
+      btnTasar.disabled = false;
+    }
+  });
+
+  function getDecision(text) {
+    if (/SOLO SI BAJA/i.test(text)) return 'SOLO SI BAJA';
+    if (/\bCOMPRA\b/i.test(text)) return 'COMPRA';
+    if (/\bPASO\b/i.test(text)) return 'PASO';
+    return null;
+  }
+
+  function badgeClass(decision) {
+    if (!decision) return '';
+    if (decision === 'COMPRA') return 'badge-compra';
+    if (decision === 'SOLO SI BAJA') return 'badge-baja';
+    return 'badge-paso';
+  }
+
+  function histClass(decision) {
+    if (!decision) return '';
+    if (decision === 'COMPRA') return 'hi-compra';
+    if (decision === 'SOLO SI BAJA') return 'hi-baja';
+    return 'hi-paso';
+  }
+
+  // Sections to parse from the result text
+  const SECTIONS = [
+    { key: 'LIBRO / LOTE',    label: 'Libro / Lote' },
+    { key: 'LECTURA RÁPIDA',  label: 'Lectura Rapida' },
+    { key: 'MERCADO',         label: 'Mercado' },
+    { key: 'MATRIZ',          label: 'Matriz' },
+    { key: 'NÚMEROS',         label: 'Numeros' },
+    { key: 'DECISIÓN',        label: 'Decision' },
+    { key: 'POR QUÉ',         label: 'Por Que' },
+    { key: 'OJO LIBRERO',     label: 'Ojo Librero' },
+    { key: 'TIP PRÁCTICO',    label: 'Tip Practico' },
+  ];
+
+  function parseResult(text) {
+    const result = [];
+    for (let i = 0; i < SECTIONS.length; i++) {
+      const current = SECTIONS[i];
+      const next = SECTIONS[i + 1];
+      const startRe = new RegExp(`${escapeRe(current.key)}\\s*:?\\s*`, 'i');
+      const startMatch = text.match(startRe);
+      if (!startMatch) continue;
+      const start = startMatch.index + startMatch[0].length;
+      let end = text.length;
+      if (next) {
+        const endRe = new RegExp(`${escapeRe(next.key)}\\s*:?`, 'i');
+        const endMatch = text.slice(start).match(endRe);
+        if (endMatch) end = start + endMatch.index;
+      }
+      const content = text.slice(start, end).trim();
+      result.push({ label: current.label, content });
+    }
+    return result;
+  }
+
+  function escapeRe(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function renderKeyLines(content) {
+    const lines = content.split('\n').filter(l => l.trim());
+    return lines.map(line => {
+      const colonIdx = line.indexOf(':');
+      if (colonIdx > 0 && colonIdx < 30) {
+        const key = line.slice(0, colonIdx).replace(/^[-\s*]+/, '').trim();
+        const val = line.slice(colonIdx + 1).trim();
+        return `<div class="line"><span class="key">${key}</span><span class="val">${val}</span></div>`;
+      }
+      const clean = line.replace(/^[-\s*]+/, '').trim();
+      return clean ? `<div class="line"><span class="val">${clean}</span></div>` : '';
+    }).join('');
+  }
+
+  function renderResult(text, imgSrc) {
+    const decision = getDecision(text);
+    const sections = parseResult(text);
+
+    let html = '';
+
+    if (decision) {
+      html += `<div class="badge ${badgeClass(decision)}">${decision}</div>`;
+    }
+
+    if (sections.length === 0) {
+      // fallback: show raw
+      html += `<div class="result-block"><p>${text.replace(/</g,'&lt;')}</p></div>`;
+    } else {
+      for (const sec of sections) {
+        if (!sec.content) continue;
+        const isList = /\n/.test(sec.content) || /-\s/.test(sec.content);
+        const isDecision = sec.label === 'Decision';
+        html += `<div class="result-block">
+          <h3>${sec.label}</h3>
+          ${isDecision
+            ? `<div class="decision-text">${sec.content.replace(/</g,'&lt;')}</div>`
+            : isList
+              ? renderKeyLines(sec.content)
+              : `<p>${sec.content.replace(/</g,'&lt;')}</p>`
+          }
+        </div>`;
+      }
+    }
+
+    resultContent.innerHTML = html;
+    resultContent.style.display = 'block';
+    resultEmpty.style.display = 'none';
+
+    // Add to historial
+    const snippet = (() => {
+      const loteSection = sections.find(s => s.label === 'Libro / Lote');
+      if (loteSection) return loteSection.content.slice(0, 40);
+      return text.slice(0, 40);
+    })();
+
+    const entry = { decision, snippet, text, imgSrc };
+    historial.unshift(entry);
+    renderHistorial();
+
+    // scroll result into view on mobile
+    if (window.innerWidth <= 700) {
+      panelResult.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  function renderHistorial() {
+    if (historial.length === 0) return;
+    historialSec.style.display = 'block';
+    histList.innerHTML = historial.map((entry, idx) => `
+      <div class="hist-item" data-idx="${idx}">
+        <div class="hi-badge ${histClass(entry.decision)}">${entry.decision || '?'}</div>
+        <div class="hi-label">${entry.snippet.replace(/</g,'&lt;')}...</div>
+      </div>
+    `).join('');
+
+    histList.querySelectorAll('.hist-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const entry = historial[+el.dataset.idx];
+        renderResult(entry.text, entry.imgSrc);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  }
+</script>
+
+</body>
+</html>
