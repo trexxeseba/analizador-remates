@@ -293,6 +293,26 @@
     }
     .ojo-tip-card .card-text { font-size: 13px; color: var(--text); line-height: 1.4; }
 
+    /* mlu section */
+    .mlu-section { padding: 0 24px 14px; flex-shrink: 0; }
+    .mlu-section .section-title { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px; }
+    .mlu-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--compra-fg); flex-shrink: 0; }
+    .mlu-searches { display: flex; flex-direction: column; gap: 8px; }
+    .mlu-search-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+    .mlu-search-query { font-size: 11px; color: var(--muted); margin-bottom: 6px; }
+    .mlu-search-query strong { color: var(--text); }
+    .mlu-stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+    .mlu-stat { font-size: 12px; }
+    .mlu-stat .sl { color: var(--muted); }
+    .mlu-stat .sv { color: var(--text); font-weight: 600; }
+    .mlu-stat .sv.med { color: var(--compra-fg); }
+    .mlu-items { display: flex; flex-direction: column; gap: 3px; }
+    .mlu-item { font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+    .mlu-item .mi-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+    .mlu-item .mi-price { color: var(--text); font-weight: 600; flex-shrink: 0; }
+    .mlu-empty { font-size: 13px; color: var(--muted); font-style: italic; }
+    .mlu-no-results { font-size: 12px; color: var(--paso-fg); }
+
     /* loading overlay on result */
     .loading-state {
       flex: 1;
@@ -471,6 +491,10 @@
         <div class="decision-badge" id="resBadge"></div>
       </div>
       <div class="numbers-grid" id="resNumbers"></div>
+      <div class="mlu-section" id="resMlu" style="display:none">
+        <div class="section-title"><div class="mlu-dot"></div>Mercado real (MLU ahora)</div>
+        <div class="mlu-searches" id="resMluSearches"></div>
+      </div>
       <div class="section" id="resWhy" style="display:none">
         <div class="section-title">Por que</div>
         <div class="why-lines" id="resWhyLines"></div>
@@ -618,7 +642,7 @@
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      renderResult(data.result);
+      renderResult(data.result, data.mlu ?? []);
     } catch (err) {
       loadingState.style.display = 'none';
       resultEmpty.style.display = 'flex';
@@ -663,7 +687,7 @@
     return 'hb-paso';
   }
 
-  function renderResult(text) {
+  function renderResult(text, mluData) {
     clearLoadTimers();
     loadingState.style.display = 'none';
 
@@ -674,15 +698,12 @@
     const ojo      = extract(text, 'OJO', 'TIP').replace(/\n.*/s,'').trim();
     const tip      = extract(text, 'TIP', null).replace(/\n.*/s,'').trim();
 
-    // title
     document.getElementById('resTitle').textContent = titulo || '';
 
-    // badge
     const badge = document.getElementById('resBadge');
     badge.textContent = decision || '?';
     badge.className = 'decision-badge ' + (decision ? decisionClass(decision) : '');
 
-    // numbers
     const pvpLine    = (numBlock.match(/PVP\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
     const margenLine = (numBlock.match(/Margen\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
     const confLine   = (numBlock.match(/Confianza\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
@@ -692,7 +713,40 @@
       <div class="num-card"><div class="num-label">Confianza</div><div class="num-value">${esc2(confLine)}</div></div>
     `;
 
-    // por qué
+    // MLU REAL
+    const mluEl = document.getElementById('resMlu');
+    const mluSearchesEl = document.getElementById('resMluSearches');
+    const searches = Array.isArray(mluData) ? mluData : [];
+    if (searches.length) {
+      mluSearchesEl.innerHTML = searches.map(s => {
+        if (s.error || s.total === 0) {
+          return `<div class="mlu-search-card">
+            <div class="mlu-search-query">Busqueda: <strong>${esc2(s.query)}</strong></div>
+            <div class="mlu-no-results">${s.error ? 'Error al buscar' : 'Sin resultados en MLU'}</div>
+          </div>`;
+        }
+        const { min, max, median } = s.stats ?? {};
+        const statsHtml = min != null ? `
+          <div class="mlu-stats">
+            <div class="mlu-stat"><span class="sl">Publicaciones: </span><span class="sv">${s.total}</span></div>
+            <div class="mlu-stat"><span class="sl">Min: </span><span class="sv">UYU ${min}</span></div>
+            <div class="mlu-stat"><span class="sl">Max: </span><span class="sv">UYU ${max}</span></div>
+            <div class="mlu-stat"><span class="sl">Mediana: </span><span class="sv med">UYU ${median}</span></div>
+          </div>` : `<div class="mlu-stats"><div class="mlu-stat"><span class="sl">Publicaciones: </span><span class="sv">${s.total}</span></div></div>`;
+        const itemsHtml = (s.items ?? []).map(i =>
+          `<div class="mlu-item"><span class="mi-title">${esc2(i.titulo)}</span><span class="mi-price">UYU ${i.precio}</span></div>`
+        ).join('');
+        return `<div class="mlu-search-card">
+          <div class="mlu-search-query">Busqueda: <strong>${esc2(s.query)}</strong></div>
+          ${statsHtml}
+          <div class="mlu-items">${itemsHtml}</div>
+        </div>`;
+      }).join('');
+      mluEl.style.display = 'block';
+    } else {
+      mluEl.style.display = 'none';
+    }
+
     const whyEl = document.getElementById('resWhy');
     const whyLines = document.getElementById('resWhyLines');
     if (porQue) {
@@ -707,7 +761,6 @@
       whyEl.style.display = 'none';
     }
 
-    // ojo + tip
     document.getElementById('resOjoTip').innerHTML = `
       ${ojo ? `<div class="ojo-tip-card"><div class="card-label">Ojo librero</div><div class="card-text">${esc2(ojo)}</div></div>` : ''}
       ${tip ? `<div class="ojo-tip-card"><div class="card-label">Tip</div><div class="card-text">${esc2(tip)}</div></div>` : ''}
@@ -715,11 +768,9 @@
 
     resultContent.style.display = 'block';
 
-    // historial
-    historial.unshift({ decision, titulo: titulo || text.slice(0,40), text });
+    historial.unshift({ decision, titulo: titulo || text.slice(0,40), text, mluData: searches });
     renderHistBtn();
 
-    // mobile: scroll to result
     if (window.innerWidth <= 680) {
       document.getElementById('panelResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -743,7 +794,8 @@
     histListScroll.querySelectorAll('.hist-entry').forEach(el => {
       el.addEventListener('click', () => {
         histDrawer.classList.remove('open');
-        renderResult(historial[+el.dataset.i].text);
+        const e = historial[+el.dataset.i];
+        renderResult(e.text, e.mluData);
       });
     });
     histDrawer.classList.add('open');
