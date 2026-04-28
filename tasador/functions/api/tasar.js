@@ -135,20 +135,19 @@ function calcStats(prices) {
 
 function parseMLUListingHTML(html, termino) {
   const items = [];
-  const re = /"title":"([^"]{5,}?)"[^}]*?"price":(\d+)/g;
-  let m;
-  while ((m = re.exec(html)) !== null && items.length < 20) {
-    const price = Number(m[2]);
-    const title = m[1];
-    if (price > 100 && !title.toLowerCase().includes("mercadolibre")) {
-      items.push({ titulo: title, precio: price, condicion: "usado" });
+  const starts = [...html.matchAll(/"id":"(MLU\d+)","type":"(?:PRODUCT|ITEM)"/g)];
+  for (const s of starts.slice(0, 20)) {
+    const chunk = html.slice(s.index, s.index + 8000);
+    const titleMatch = chunk.match(/"title":"([^"]{5,80})"/);
+    const priceMatch = chunk.match(/"price":([\d]+(?:\.\d+)?),"currency_id":"UYU"/);
+    if (titleMatch && priceMatch) {
+      const price = Math.round(Number(priceMatch[1]));
+      const title = titleMatch[1];
+      if (price > 100) items.push({ titulo: title, precio: price, condicion: "usado" });
     }
   }
   const seen = new Set();
-  const unique = items.filter(i => {
-    const k = i.titulo.slice(0, 30);
-    return seen.has(k) ? false : seen.add(k);
-  });
+  const unique = items.filter(i => seen.has(i.titulo) ? false : seen.add(i.titulo));
   const prices = unique.map(i => i.precio);
   const stats = calcStats(prices);
   return {
