@@ -2,85 +2,115 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Tasador — Amado Libros</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --surface2: #242736;
-      --border: #2e3248;
-      --text: #e2e4ef;
-      --muted: #7b82a0;
-      --accent: #6c7bff;
-      --green: #22c55e;
-      --yellow: #eab308;
-      --red: #ef4444;
+      --bg: #0d0f18;
+      --surface: #161926;
+      --surface2: #1e2235;
+      --border: #262c42;
+      --text: #e8eaf5;
+      --muted: #6b7394;
+      --accent: #5c6ef5;
+      --h: 52px; /* header height */
+      --compra-bg: #14532d;
+      --compra-fg: #4ade80;
+      --baja-bg: #451a03;
+      --baja-fg: #fb923c;
+      --paso-bg: #450a0a;
+      --paso-fg: #f87171;
       --radius: 10px;
     }
+
+    html, body { height: 100%; overflow: hidden; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       font-size: 15px;
-      line-height: 1.6;
-      min-height: 100vh;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
     }
 
+    /* ── HEADER ── */
     header {
-      padding: 18px 20px 14px;
+      height: var(--h);
+      min-height: var(--h);
+      padding: 0 16px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      flex-shrink: 0;
     }
-    header h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
-    header span { font-size: 12px; color: var(--muted); font-weight: 400; }
+    header h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.2px; }
+    header h1 em { color: var(--accent); font-style: normal; }
+    header .hist-btn {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      display: none;
+    }
+    header .hist-btn.visible { display: block; }
 
+    /* ── MAIN LAYOUT ── */
     .layout {
       display: flex;
-      gap: 0;
-      min-height: calc(100vh - 57px);
-    }
-
-    /* FORM PANEL */
-    .panel-form {
       flex: 1;
-      min-width: 0;
-      padding: 20px;
-      border-right: 1px solid var(--border);
-      max-width: 480px;
+      min-height: 0;
     }
 
-    /* UPLOAD ZONE */
+    /* ── FORM PANEL ── */
+    .panel-form {
+      width: 320px;
+      min-width: 320px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 14px;
+      gap: 10px;
+    }
+
+    /* upload zone */
     .upload-zone {
       border: 2px dashed var(--border);
       border-radius: var(--radius);
-      padding: 20px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
       background: var(--surface);
-      min-height: 90px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 12px;
+      text-align: center;
+      position: relative;
     }
-    .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: #1e2137; }
+    .upload-zone:hover, .upload-zone.drag { border-color: var(--accent); background: var(--surface2); }
     .upload-zone input { display: none; }
 
-    .placeholder { color: var(--muted); font-size: 14px; }
-    .placeholder strong { display: block; font-size: 15px; color: var(--text); margin-bottom: 4px; }
-    .placeholder small { display: block; font-size: 12px; margin-top: 4px; color: var(--muted); opacity: 0.7; }
+    .upload-ph { pointer-events: none; }
+    .upload-ph strong { display: block; font-size: 14px; color: var(--text); margin-bottom: 3px; }
+    .upload-ph small { font-size: 12px; color: var(--muted); }
 
-    /* PHOTO GRID */
+    /* photo grid */
     .photo-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-top: 12px;
+      gap: 6px;
+      width: 100%;
     }
-
     .photo-thumb {
       position: relative;
       aspect-ratio: 1;
@@ -88,75 +118,30 @@
       overflow: hidden;
       background: var(--surface2);
     }
-
-    .photo-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-thumb .del {
+      position: absolute; top: 3px; right: 3px;
+      width: 22px; height: 22px;
+      background: rgba(0,0,0,.75); border: none; border-radius: 50%;
+      color: #fff; font-size: 14px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .photo-thumb .del:hover { background: #dc2626; }
+    .photo-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; color: var(--muted); width: 100%;
+      margin-top: 6px;
+    }
+    .photo-meta button {
+      font-size: 12px; color: var(--accent);
+      background: none; border: none; cursor: pointer; padding: 0;
     }
 
-    .photo-thumb .remove-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 20px;
-      height: 20px;
-      background: rgba(0,0,0,0.7);
-      border: none;
-      border-radius: 50%;
-      color: #fff;
-      font-size: 13px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
+    /* fields */
+    .field-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 4px;
     }
-    .photo-thumb .remove-btn:hover { background: var(--red); }
-
-    .photo-count {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 8px;
-      text-align: right;
-    }
-    .photo-count span { color: var(--accent); font-weight: 600; }
-
-    .add-more-btn {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--accent);
-      cursor: pointer;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 6px 12px;
-      width: 100%;
-      transition: border-color 0.15s;
-    }
-    .add-more-btn:hover { border-color: var(--accent); }
-
-    /* PASTE HINT */
-    .paste-hint {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 8px;
-      opacity: 0.7;
-    }
-    .paste-hint kbd {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      padding: 1px 5px;
-      font-size: 11px;
-      font-family: monospace;
-    }
-
-    label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 5px; margin-top: 16px; }
-
     textarea, input[type="number"] {
       width: 100%;
       background: var(--surface);
@@ -164,166 +149,254 @@
       border-radius: 8px;
       color: var(--text);
       font-size: 14px;
-      padding: 10px 12px;
+      padding: 9px 11px;
       outline: none;
-      transition: border-color 0.2s;
       font-family: inherit;
+      transition: border-color 0.15s;
     }
-    textarea { resize: vertical; min-height: 80px; }
+    textarea { resize: none; height: 58px; line-height: 1.4; }
     textarea:focus, input[type="number"]:focus { border-color: var(--accent); }
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
 
-    .row-fields { display: flex; gap: 12px; }
-    .row-fields > * { flex: 1; }
-
-    button.tasar {
+    /* tasar button */
+    .btn-tasar {
       width: 100%;
-      margin-top: 20px;
-      padding: 13px;
+      padding: 0;
+      height: 52px;
       background: var(--accent);
       color: #fff;
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
       border: none;
       border-radius: var(--radius);
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: opacity 0.15s, transform 0.1s;
+      flex-shrink: 0;
+      margin-top: auto;
     }
-    button.tasar:hover { opacity: 0.88; }
-    button.tasar:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-tasar:hover:not(:disabled) { opacity: 0.88; }
+    .btn-tasar:active:not(:disabled) { transform: scale(0.98); }
+    .btn-tasar:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-tasar.loading { background: var(--surface2); color: var(--muted); }
 
-    .spinner {
-      display: none;
-      margin: 20px auto 0;
-      width: 28px; height: 28px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+    /* error */
+    .error-msg {
+      background: rgba(220,38,38,.12);
+      border: 1px solid rgba(220,38,38,.3);
+      color: #f87171;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* RESULT PANEL */
+    /* ── RESULT PANEL ── */
     .panel-result {
-      flex: 1.4;
+      flex: 1;
       min-width: 0;
-      padding: 20px;
-      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .result-empty {
+      flex: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100%;
       color: var(--muted);
       font-size: 14px;
+      gap: 6px;
+      padding: 20px;
       text-align: center;
-      padding: 40px;
     }
+    .result-empty .hint { font-size: 12px; opacity: 0.6; }
 
-    .badge {
-      display: inline-block;
-      padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      margin-bottom: 16px;
-    }
-    .badge-compra { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-    .badge-baja   { background: rgba(234,179,8,0.15);  color: var(--yellow); border: 1px solid rgba(234,179,8,0.3); }
-    .badge-paso   { background: rgba(239,68,68,0.15);  color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
-
-    .result-block { margin-bottom: 18px; }
-    .result-block h3 {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border);
-    }
-    .result-block p { font-size: 14px; color: var(--text); white-space: pre-wrap; }
-    .result-block .line {
+    /* decision block */
+    .decision-block {
+      padding: 20px 24px 16px;
       display: flex;
-      gap: 8px;
-      padding: 5px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      flex-shrink: 0;
     }
-    .result-block .line:last-child { border-bottom: none; }
-    .result-block .line .key { color: var(--muted); min-width: 160px; font-size: 13px; }
-    .result-block .line .val { color: var(--text); }
-    .decision-text { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    .decision-block .book-title {
+      font-size: 12px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 4px;
+    }
+    .decision-badge {
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 900;
+      letter-spacing: -1px;
+      line-height: 1;
+      padding: 10px 20px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+    .badge-compra { background: var(--compra-bg); color: var(--compra-fg); }
+    .badge-baja   { background: var(--baja-bg);   color: var(--baja-fg); }
+    .badge-paso   { background: var(--paso-bg);    color: var(--paso-fg); }
 
-    /* HISTORIAL */
-    .historial { border-top: 1px solid var(--border); padding: 16px 20px; }
-    .historial h2 {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 12px;
+    /* numbers grid */
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 0 24px 14px;
+      flex-shrink: 0;
     }
-    .hist-list { display: flex; flex-wrap: wrap; gap: 10px; }
-    .hist-item {
+    .num-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 14px;
-      cursor: pointer;
-      transition: border-color 0.15s;
-      max-width: 200px;
+      padding: 10px 12px;
     }
-    .hist-item:hover { border-color: var(--accent); }
-    .hist-item .hi-badge { font-size: 11px; font-weight: 700; margin-bottom: 3px; }
-    .hi-compra { color: var(--green); }
-    .hi-baja   { color: var(--yellow); }
-    .hi-paso   { color: var(--red); }
-    .hist-item .hi-label { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .num-card .num-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .num-card .num-value { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.2; margin-top: 2px; }
+    .num-card .num-value.highlight { color: var(--compra-fg); }
 
-    .error-msg {
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: var(--red);
-      padding: 12px 14px;
+    /* por qué */
+    .section {
+      padding: 0 24px 12px;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-size: 11px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 6px;
+      padding-bottom: 5px; border-bottom: 1px solid var(--border);
+    }
+    .why-lines { display: flex; flex-direction: column; gap: 5px; }
+    .why-line { font-size: 14px; color: var(--text); display: flex; gap: 8px; }
+    .why-line .sign { font-weight: 700; flex-shrink: 0; }
+    .sign-pos { color: var(--compra-fg); }
+    .sign-neg { color: var(--paso-fg); }
+
+    .ojo-tip-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 0 24px 14px;
+      flex-shrink: 0;
+    }
+    .ojo-tip-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 8px;
-      font-size: 14px;
-      margin-top: 12px;
+      padding: 10px 12px;
     }
+    .ojo-tip-card .card-label {
+      font-size: 11px; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.4px; margin-bottom: 4px;
+    }
+    .ojo-tip-card .card-text { font-size: 13px; color: var(--text); line-height: 1.4; }
 
-    /* PASTE FLASH */
-    .paste-flash {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      color: #fff;
+    /* loading overlay on result */
+    .loading-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+    .loading-steps { display: flex; flex-direction: column; gap: 8px; }
+    .load-step {
       font-size: 13px;
-      font-weight: 600;
-      padding: 8px 18px;
-      border-radius: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      z-index: 999;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.3s;
+    }
+    .load-step.active { color: var(--text); }
+    .load-step.done { color: var(--compra-fg); }
+    .load-step .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); flex-shrink: 0;
+      transition: background 0.3s;
+    }
+    .load-step.active .dot { background: var(--accent); animation: pulse 1s infinite; }
+    .load-step.done .dot { background: var(--compra-fg); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* historial drawer */
+    .hist-drawer {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+    }
+    .hist-drawer.open { transform: none; }
+    .hist-header {
+      height: var(--h);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+    .hist-header h2 { font-size: 15px; font-weight: 600; }
+    .hist-close {
+      font-size: 22px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .hist-list-scroll { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .hist-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s;
+    }
+    .hist-entry:hover { border-color: var(--accent); }
+    .hist-badge-sm {
+      font-size: 12px; font-weight: 800;
+      padding: 3px 10px; border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .hb-compra { background: var(--compra-bg); color: var(--compra-fg); }
+    .hb-baja   { background: var(--baja-bg);   color: var(--baja-fg); }
+    .hb-paso   { background: var(--paso-bg);    color: var(--paso-fg); }
+    .hist-entry-text { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* paste flash */
+    .paste-flash {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 600;
+      padding: 7px 18px; border-radius: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 200;
     }
     .paste-flash.show { opacity: 1; }
 
-    /* MOBILE */
-    @media (max-width: 700px) {
-      .layout { flex-direction: column; }
-      .panel-form { max-width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
-      .panel-result { min-height: 300px; }
-      .historial { display: block; }
-      .photo-grid { grid-template-columns: repeat(3, 1fr); }
+    /* ── MOBILE ── */
+    @media (max-width: 680px) {
+      html, body { overflow: auto; }
+      .layout { flex-direction: column; height: auto; }
+      .panel-form {
+        width: 100%; min-width: 0;
+        border-right: none; border-bottom: 1px solid var(--border);
+        overflow-y: visible;
+      }
+      .panel-result { min-height: 0; overflow: visible; }
+      .numbers-grid { grid-template-columns: repeat(3, 1fr); }
+      .ojo-tip-grid { grid-template-columns: 1fr; }
+      .decision-badge { font-size: 40px; }
+      header .hist-btn.visible { display: block; }
     }
-    @media (min-width: 701px) {
-      .layout { height: calc(100vh - 57px); }
+
+    @media (min-width: 681px) {
       .panel-result { overflow-y: auto; }
     }
   </style>
@@ -331,194 +404,204 @@
 <body>
 
 <header>
-  <div>
-    <h1>Tasador <span style="color:var(--accent)">Amado Libros</span></h1>
-    <span>Remates Uruguay — Mercado Libre UYU</span>
-  </div>
+  <h1>Tasador <em>Amado</em></h1>
+  <button class="hist-btn" id="histBtn">Historial</button>
 </header>
 
 <div class="layout">
+
   <!-- FORM -->
   <div class="panel-form">
+
     <div class="upload-zone" id="uploadZone">
       <input type="file" id="fileInput" accept="image/*" multiple />
-      <div class="placeholder" id="uploadPlaceholder">
-        <strong>Fotos del libro o lote</strong>
-        Toca para seleccionar o arrastra aquí
-        <small>Hasta 6 fotos — o pega con Ctrl+V</small>
+      <div class="upload-ph" id="uploadPh">
+        <strong>Fotos del libro</strong>
+        <small>Toca, arrastra o pega (Ctrl+V)</small>
+        <small style="margin-top:2px;opacity:.5">hasta 6 fotos</small>
       </div>
       <div class="photo-grid" id="photoGrid"></div>
-    </div>
-
-    <div class="paste-hint" id="pasteHint" style="display:none">
-      <kbd>Ctrl+V</kbd> para pegar desde portapapeles
-    </div>
-
-    <div id="photoMeta" style="display:none">
-      <div class="photo-count">Fotos: <span id="photoCountNum">0</span> / 6</div>
-      <button class="add-more-btn" id="addMoreBtn" type="button">+ Agregar mas fotos</button>
-    </div>
-
-    <label for="contexto">Contexto (opcional)</label>
-    <textarea id="contexto" placeholder="Ej: lote de 3 libros de historia, buen estado general..."></textarea>
-
-    <div class="row-fields">
-      <div>
-        <label for="costo">Costo UYU</label>
-        <input type="number" id="costo" placeholder="0" min="0" />
-      </div>
-      <div>
-        <label for="pvp">PVP referencia UYU</label>
-        <input type="number" id="pvp" placeholder="0" min="0" />
+      <div class="photo-meta" id="photoMeta" style="display:none">
+        <span id="photoCount" style="color:var(--muted);font-size:12px">0 / 6</span>
+        <button id="addMoreBtn" type="button">+ agregar</button>
       </div>
     </div>
 
-    <button class="tasar" id="btnTasar" disabled>Tasar</button>
-    <div class="spinner" id="spinner"></div>
-    <div class="error-msg" id="errorMsg" style="display:none"></div>
+    <div>
+      <div class="field-label">Contexto</div>
+      <textarea id="contexto" placeholder="Estado, lote, algo que viste..."></textarea>
+    </div>
+
+    <div class="row">
+      <div>
+        <div class="field-label">Costo UYU</div>
+        <input type="number" id="costo" placeholder="0" min="0" inputmode="numeric" />
+      </div>
+      <div>
+        <div class="field-label">PVP ref. UYU</div>
+        <input type="number" id="pvp" placeholder="0" min="0" inputmode="numeric" />
+      </div>
+    </div>
+
+    <div id="errorMsg" class="error-msg" style="display:none"></div>
+
+    <button class="btn-tasar" id="btnTasar" disabled>Tasar</button>
+
   </div>
 
   <!-- RESULT -->
   <div class="panel-result" id="panelResult">
-    <div class="result-empty" id="resultEmpty">Subi una foto y toca Tasar</div>
-    <div id="resultContent" style="display:none"></div>
+
+    <div class="result-empty" id="resultEmpty">
+      <div>Foto + Tasar</div>
+      <div class="hint">La decision aparece aca</div>
+    </div>
+
+    <div id="loadingState" class="loading-state" style="display:none">
+      <div class="loading-steps">
+        <div class="load-step" id="step1"><div class="dot"></div>Identificando libro...</div>
+        <div class="load-step" id="step2"><div class="dot"></div>Buscando en Mercado Libre...</div>
+        <div class="load-step" id="step3"><div class="dot"></div>Analizando...</div>
+      </div>
+    </div>
+
+    <div id="resultContent" style="display:none">
+      <div class="decision-block">
+        <div class="book-title" id="resTitle"></div>
+        <div class="decision-badge" id="resBadge"></div>
+      </div>
+      <div class="numbers-grid" id="resNumbers"></div>
+      <div class="section" id="resWhy" style="display:none">
+        <div class="section-title">Por que</div>
+        <div class="why-lines" id="resWhyLines"></div>
+      </div>
+      <div class="ojo-tip-grid" id="resOjoTip"></div>
+    </div>
+
   </div>
 </div>
 
-<div class="historial" id="historialSection" style="display:none">
-  <h2>Historial de la sesion</h2>
-  <div class="hist-list" id="histList"></div>
+<!-- HISTORIAL DRAWER -->
+<div class="hist-drawer" id="histDrawer">
+  <div class="hist-header">
+    <h2>Historial</h2>
+    <button class="hist-close" id="histClose">x</button>
+  </div>
+  <div class="hist-list-scroll" id="histListScroll"></div>
 </div>
 
 <div class="paste-flash" id="pasteFlash">Imagen pegada</div>
 
 <script>
   const API_URL = '/api/tasar';
-  const MAX_PHOTOS = 6;
+  const MAX = 6;
 
-  // photos = [{base64, mime, dataUrl}]
   let photos = [];
   let historial = [];
 
-  const uploadZone    = document.getElementById('uploadZone');
-  const fileInput     = document.getElementById('fileInput');
-  const photoGrid     = document.getElementById('photoGrid');
-  const photoMeta     = document.getElementById('photoMeta');
-  const photoCountNum = document.getElementById('photoCountNum');
-  const addMoreBtn    = document.getElementById('addMoreBtn');
-  const uploadPH      = document.getElementById('uploadPlaceholder');
-  const pasteHint     = document.getElementById('pasteHint');
-  const btnTasar      = document.getElementById('btnTasar');
-  const spinner       = document.getElementById('spinner');
-  const errorMsg      = document.getElementById('errorMsg');
-  const panelResult   = document.getElementById('panelResult');
-  const resultEmpty   = document.getElementById('resultEmpty');
-  const resultContent = document.getElementById('resultContent');
-  const historialSec  = document.getElementById('historialSection');
-  const histList      = document.getElementById('histList');
-  const pasteFlash    = document.getElementById('pasteFlash');
+  const uploadZone  = document.getElementById('uploadZone');
+  const fileInput   = document.getElementById('fileInput');
+  const uploadPh    = document.getElementById('uploadPh');
+  const photoGrid   = document.getElementById('photoGrid');
+  const photoMeta   = document.getElementById('photoMeta');
+  const photoCount  = document.getElementById('photoCount');
+  const addMoreBtn  = document.getElementById('addMoreBtn');
+  const btnTasar    = document.getElementById('btnTasar');
+  const errorMsg    = document.getElementById('errorMsg');
+  const resultEmpty = document.getElementById('resultEmpty');
+  const loadingState= document.getElementById('loadingState');
+  const resultContent=document.getElementById('resultContent');
+  const histBtn     = document.getElementById('histBtn');
+  const histDrawer  = document.getElementById('histDrawer');
+  const histClose   = document.getElementById('histClose');
+  const histListScroll=document.getElementById('histListScroll');
+  const pasteFlash  = document.getElementById('pasteFlash');
 
-  // ── Upload zone click ──
-  uploadZone.addEventListener('click', (e) => {
-    if (e.target === addMoreBtn || e.target.classList.contains('remove-btn')) return;
-    if (photos.length < MAX_PHOTOS) fileInput.click();
+  // ── upload events ──
+  uploadZone.addEventListener('click', e => {
+    if (e.target === addMoreBtn || e.target.classList.contains('del')) return;
+    if (photos.length < MAX) fileInput.click();
   });
+  addMoreBtn.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+  fileInput.addEventListener('change', () => { Array.from(fileInput.files).forEach(addFile); fileInput.value=''; });
 
-  addMoreBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (photos.length < MAX_PHOTOS) fileInput.click();
-  });
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+  uploadZone.addEventListener('dragleave', e => { if (!uploadZone.contains(e.relatedTarget)) uploadZone.classList.remove('drag'); });
+  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); Array.from(e.dataTransfer.files).forEach(addFile); });
 
-  // ── File input change ──
-  fileInput.addEventListener('change', () => {
-    const files = Array.from(fileInput.files);
-    files.forEach(f => addFile(f));
-    fileInput.value = '';
-  });
-
-  // ── Drag & drop ──
-  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag'); });
-  uploadZone.addEventListener('dragleave', (e) => {
-    if (!uploadZone.contains(e.relatedTarget)) uploadZone.classList.remove('drag');
-  });
-  uploadZone.addEventListener('drop', (e) => {
+  document.addEventListener('paste', e => {
+    const imgs = Array.from(e.clipboardData?.items ?? []).filter(i => i.type.startsWith('image/'));
+    if (!imgs.length) return;
     e.preventDefault();
-    uploadZone.classList.remove('drag');
-    Array.from(e.dataTransfer.files).forEach(f => addFile(f));
+    imgs.forEach(i => { const f = i.getAsFile(); if (f) addFile(f); });
+    flash();
   });
 
-  // ── Clipboard paste (Ctrl+V anywhere) ──
-  document.addEventListener('paste', (e) => {
-    const items = Array.from(e.clipboardData?.items ?? []);
-    const imageItems = items.filter(i => i.type.startsWith('image/'));
-    if (imageItems.length === 0) return;
-    e.preventDefault();
-    imageItems.forEach(item => {
-      const file = item.getAsFile();
-      if (file) addFile(file);
-    });
-    showPasteFlash();
-  });
-
-  function showPasteFlash() {
+  function flash() {
     pasteFlash.classList.add('show');
-    setTimeout(() => pasteFlash.classList.remove('show'), 1800);
+    setTimeout(() => pasteFlash.classList.remove('show'), 1600);
   }
 
   function addFile(file) {
-    if (!file.type.startsWith('image/')) return;
-    if (photos.length >= MAX_PHOTOS) return;
+    if (!file.type.startsWith('image/') || photos.length >= MAX) return;
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       const dataUrl = e.target.result;
-      const base64 = dataUrl.split(',')[1];
-      photos.push({ base64, mime: file.type, dataUrl });
+      photos.push({ base64: dataUrl.split(',')[1], mime: file.type, dataUrl });
       renderPhotos();
     };
     reader.readAsDataURL(file);
   }
 
-  function removePhoto(idx) {
-    photos.splice(idx, 1);
-    renderPhotos();
-  }
+  function removePhoto(idx) { photos.splice(idx, 1); renderPhotos(); }
 
   function renderPhotos() {
-    const hasPhotos = photos.length > 0;
-    uploadPH.style.display = hasPhotos ? 'none' : 'block';
-    photoMeta.style.display = hasPhotos ? 'block' : 'none';
-    pasteHint.style.display = hasPhotos ? 'none' : 'block';
-    photoCountNum.textContent = photos.length;
-    addMoreBtn.style.display = photos.length < MAX_PHOTOS ? 'block' : 'none';
+    const has = photos.length > 0;
+    uploadPh.style.display = has ? 'none' : 'block';
+    photoMeta.style.display = has ? 'flex' : 'none';
+    photoCount.textContent = `${photos.length} / ${MAX}`;
+    addMoreBtn.style.display = photos.length < MAX ? 'inline' : 'none';
     btnTasar.disabled = photos.length === 0;
 
     photoGrid.innerHTML = photos.map((p, i) => `
       <div class="photo-thumb">
-        <img src="${p.dataUrl}" alt="foto ${i+1}" />
-        <button class="remove-btn" data-idx="${i}" type="button" title="Eliminar">x</button>
+        <img src="${p.dataUrl}" alt="" />
+        <button class="del" data-i="${i}" type="button">x</button>
       </div>
     `).join('');
-
-    photoGrid.querySelectorAll('.remove-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        removePhoto(+btn.dataset.idx);
-      });
-    });
+    photoGrid.querySelectorAll('.del').forEach(b => b.addEventListener('click', e => { e.stopPropagation(); removePhoto(+b.dataset.i); }));
   }
 
-  // show paste hint on load
-  pasteHint.style.display = 'block';
+  // ── loading steps ──
+  let loadTimers = [];
+  function startLoadingSteps() {
+    ['step1','step2','step3'].forEach(id => {
+      const el = document.getElementById(id);
+      el.classList.remove('active','done');
+    });
+    document.getElementById('step1').classList.add('active');
+    loadTimers.push(setTimeout(() => {
+      document.getElementById('step1').classList.replace('active','done');
+      document.getElementById('step2').classList.add('active');
+    }, 2200));
+    loadTimers.push(setTimeout(() => {
+      document.getElementById('step2').classList.replace('active','done');
+      document.getElementById('step3').classList.add('active');
+    }, 5000));
+  }
+  function clearLoadTimers() { loadTimers.forEach(clearTimeout); loadTimers = []; }
 
-  // ── TASAR ──
+  // ── tasar ──
   btnTasar.addEventListener('click', async () => {
-    if (photos.length === 0) return;
-
+    if (!photos.length) return;
     errorMsg.style.display = 'none';
     btnTasar.disabled = true;
-    spinner.style.display = 'block';
+    btnTasar.textContent = 'Tasando...';
+    btnTasar.classList.add('loading');
     resultEmpty.style.display = 'none';
     resultContent.style.display = 'none';
+    loadingState.style.display = 'flex';
+    startLoadingSteps();
 
     const payload = {
       images: photos.map(p => ({ image_base64: p.base64, mime_type: p.mime })),
@@ -535,134 +618,137 @@
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
-      renderResult(data.result, photos[0].dataUrl);
+      renderResult(data.result);
     } catch (err) {
-      errorMsg.textContent = 'Error: ' + err.message;
-      errorMsg.style.display = 'block';
+      loadingState.style.display = 'none';
       resultEmpty.style.display = 'flex';
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
     } finally {
-      spinner.style.display = 'none';
+      clearLoadTimers();
       btnTasar.disabled = photos.length === 0;
+      btnTasar.textContent = 'Tasar';
+      btnTasar.classList.remove('loading');
     }
   });
 
-  // ── RENDER RESULT ──
+  // ── parse result ──
+  function extract(text, key, nextKey) {
+    const re = new RegExp(`${esc(key)}\\s*:?\\s*`, 'i');
+    const m = text.match(re);
+    if (!m) return '';
+    const start = m.index + m[0].length;
+    if (!nextKey) return text.slice(start).trim();
+    const re2 = new RegExp(`${esc(nextKey)}\\s*:?`, 'i');
+    const m2 = text.slice(start).match(re2);
+    return text.slice(start, m2 ? start + m2.index : undefined).trim();
+  }
+  function esc(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
   function getDecision(text) {
-    if (/SOLO SI BAJA/i.test(text)) return 'SOLO SI BAJA';
+    if (/SOLO\s+SI\s+BAJA/i.test(text)) return 'SOLO SI BAJA';
     if (/\bCOMPRA\b/i.test(text)) return 'COMPRA';
     if (/\bPASO\b/i.test(text)) return 'PASO';
     return null;
   }
 
-  function badgeClass(decision) {
-    if (decision === 'COMPRA') return 'badge-compra';
-    if (decision === 'SOLO SI BAJA') return 'badge-baja';
+  function decisionClass(d) {
+    if (d === 'COMPRA') return 'badge-compra';
+    if (d === 'SOLO SI BAJA') return 'badge-baja';
     return 'badge-paso';
   }
-
-  function histClass(decision) {
-    if (decision === 'COMPRA') return 'hi-compra';
-    if (decision === 'SOLO SI BAJA') return 'hi-baja';
-    return 'hi-paso';
+  function histBadgeClass(d) {
+    if (d === 'COMPRA') return 'hb-compra';
+    if (d === 'SOLO SI BAJA') return 'hb-baja';
+    return 'hb-paso';
   }
 
-  const SECTIONS = [
-    { key: 'LIBRO / LOTE',   label: 'Libro / Lote' },
-    { key: 'LECTURA RÁPIDA', label: 'Lectura Rapida' },
-    { key: 'MERCADO',        label: 'Mercado' },
-    { key: 'MATRIZ',         label: 'Matriz' },
-    { key: 'NÚMEROS',        label: 'Numeros' },
-    { key: 'DECISIÓN',       label: 'Decision' },
-    { key: 'POR QUÉ',        label: 'Por Que' },
-    { key: 'OJO LIBRERO',    label: 'Ojo Librero' },
-    { key: 'TIP PRÁCTICO',   label: 'Tip Practico' },
-  ];
+  function renderResult(text) {
+    clearLoadTimers();
+    loadingState.style.display = 'none';
 
-  function escapeRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-
-  function parseResult(text) {
-    const result = [];
-    for (let i = 0; i < SECTIONS.length; i++) {
-      const cur = SECTIONS[i], nxt = SECTIONS[i + 1];
-      const startMatch = text.match(new RegExp(`${escapeRe(cur.key)}\\s*:?\\s*`, 'i'));
-      if (!startMatch) continue;
-      const start = startMatch.index + startMatch[0].length;
-      let end = text.length;
-      if (nxt) {
-        const endMatch = text.slice(start).match(new RegExp(`${escapeRe(nxt.key)}\\s*:?`, 'i'));
-        if (endMatch) end = start + endMatch.index;
-      }
-      result.push({ label: cur.label, content: text.slice(start, end).trim() });
-    }
-    return result;
-  }
-
-  function renderKeyLines(content) {
-    return content.split('\n').filter(l => l.trim()).map(line => {
-      const ci = line.indexOf(':');
-      if (ci > 0 && ci < 30) {
-        const key = line.slice(0, ci).replace(/^[-\s*]+/, '').trim();
-        const val = line.slice(ci + 1).trim();
-        return `<div class="line"><span class="key">${key}</span><span class="val">${val}</span></div>`;
-      }
-      const clean = line.replace(/^[-\s*]+/, '').trim();
-      return clean ? `<div class="line"><span class="val">${clean}</span></div>` : '';
-    }).join('');
-  }
-
-  function renderResult(text, imgSrc) {
     const decision = getDecision(text);
-    const sections = parseResult(text);
-    let html = '';
+    const titulo   = extract(text, 'TÍTULO', 'DECISIÓN').replace(/\n.*/s,'').trim();
+    const numBlock = extract(text, 'NÚMEROS', 'POR QUÉ');
+    const porQue   = extract(text, 'POR QUÉ', 'OJO');
+    const ojo      = extract(text, 'OJO', 'TIP').replace(/\n.*/s,'').trim();
+    const tip      = extract(text, 'TIP', null).replace(/\n.*/s,'').trim();
 
-    if (decision) html += `<div class="badge ${badgeClass(decision)}">${decision}</div>`;
+    // title
+    document.getElementById('resTitle').textContent = titulo || '';
 
-    if (sections.length === 0) {
-      html += `<div class="result-block"><p>${text.replace(/</g,'&lt;')}</p></div>`;
+    // badge
+    const badge = document.getElementById('resBadge');
+    badge.textContent = decision || '?';
+    badge.className = 'decision-badge ' + (decision ? decisionClass(decision) : '');
+
+    // numbers
+    const pvpLine    = (numBlock.match(/PVP\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
+    const margenLine = (numBlock.match(/Margen\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
+    const confLine   = (numBlock.match(/Confianza\s*:\s*(.+)/i) || [])[1]?.trim() ?? '?';
+    document.getElementById('resNumbers').innerHTML = `
+      <div class="num-card"><div class="num-label">PVP</div><div class="num-value">${esc2(pvpLine)}</div></div>
+      <div class="num-card"><div class="num-label">Margen</div><div class="num-value highlight">${esc2(margenLine)}</div></div>
+      <div class="num-card"><div class="num-label">Confianza</div><div class="num-value">${esc2(confLine)}</div></div>
+    `;
+
+    // por qué
+    const whyEl = document.getElementById('resWhy');
+    const whyLines = document.getElementById('resWhyLines');
+    if (porQue) {
+      const lines = porQue.split('\n').map(l => l.trim()).filter(Boolean);
+      whyLines.innerHTML = lines.map(line => {
+        if (/^\+/.test(line)) return `<div class="why-line"><span class="sign sign-pos">+</span><span>${esc2(line.replace(/^\+\s*/,''))}</span></div>`;
+        if (/^-/.test(line))  return `<div class="why-line"><span class="sign sign-neg">-</span><span>${esc2(line.replace(/^-\s*/,''))}</span></div>`;
+        return `<div class="why-line"><span>${esc2(line)}</span></div>`;
+      }).join('');
+      whyEl.style.display = 'block';
     } else {
-      for (const sec of sections) {
-        if (!sec.content) continue;
-        const isList = /\n/.test(sec.content) || /-\s/.test(sec.content);
-        const isDecision = sec.label === 'Decision';
-        html += `<div class="result-block">
-          <h3>${sec.label}</h3>
-          ${isDecision
-            ? `<div class="decision-text">${sec.content.replace(/</g,'&lt;')}</div>`
-            : isList ? renderKeyLines(sec.content)
-            : `<p>${sec.content.replace(/</g,'&lt;')}</p>`}
-        </div>`;
-      }
+      whyEl.style.display = 'none';
     }
 
-    resultContent.innerHTML = html;
+    // ojo + tip
+    document.getElementById('resOjoTip').innerHTML = `
+      ${ojo ? `<div class="ojo-tip-card"><div class="card-label">Ojo librero</div><div class="card-text">${esc2(ojo)}</div></div>` : ''}
+      ${tip ? `<div class="ojo-tip-card"><div class="card-label">Tip</div><div class="card-text">${esc2(tip)}</div></div>` : ''}
+    `;
+
     resultContent.style.display = 'block';
-    resultEmpty.style.display = 'none';
 
-    const loteSection = sections.find(s => s.label === 'Libro / Lote');
-    const snippet = (loteSection?.content ?? text).slice(0, 40);
-    historial.unshift({ decision, snippet, text, imgSrc });
-    renderHistorial();
+    // historial
+    historial.unshift({ decision, titulo: titulo || text.slice(0,40), text });
+    renderHistBtn();
 
-    if (window.innerWidth <= 700) panelResult.scrollIntoView({ behavior: 'smooth' });
+    // mobile: scroll to result
+    if (window.innerWidth <= 680) {
+      document.getElementById('panelResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
-  function renderHistorial() {
-    if (historial.length === 0) return;
-    historialSec.style.display = 'block';
-    histList.innerHTML = historial.map((e, i) => `
-      <div class="hist-item" data-idx="${i}">
-        <div class="hi-badge ${histClass(e.decision)}">${e.decision || '?'}</div>
-        <div class="hi-label">${e.snippet.replace(/</g,'&lt;')}...</div>
+  function esc2(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  // ── historial ──
+  function renderHistBtn() {
+    histBtn.classList.toggle('visible', historial.length > 0);
+    histBtn.textContent = `Historial (${historial.length})`;
+  }
+
+  histBtn.addEventListener('click', () => {
+    histListScroll.innerHTML = historial.map((e, i) => `
+      <div class="hist-entry" data-i="${i}">
+        <span class="hist-badge-sm ${histBadgeClass(e.decision)}">${e.decision || '?'}</span>
+        <span class="hist-entry-text">${esc2(e.titulo)}</span>
       </div>
     `).join('');
-    histList.querySelectorAll('.hist-item').forEach(el => {
+    histListScroll.querySelectorAll('.hist-entry').forEach(el => {
       el.addEventListener('click', () => {
-        const e = historial[+el.dataset.idx];
-        renderResult(e.text, e.imgSrc);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        histDrawer.classList.remove('open');
+        renderResult(historial[+el.dataset.i].text);
       });
     });
-  }
+    histDrawer.classList.add('open');
+  });
+  histClose.addEventListener('click', () => histDrawer.classList.remove('open'));
 </script>
 
 </body>
