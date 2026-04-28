@@ -461,10 +461,21 @@
   uploadZone.addEventListener('drop',      e => { e.preventDefault(); uploadZone.classList.remove('drag'); Array.from(e.dataTransfer.files).forEach(addFile); });
 
   document.addEventListener('paste', e => {
-    const imgs = Array.from(e.clipboardData?.items ?? []).filter(i => i.type.startsWith('image/'));
-    if (!imgs.length) return;
+    let files = [];
+
+    // Method 1: items API (screenshots, browser copy)
+    const items = Array.from(e.clipboardData?.items ?? []);
+    const imgItems = items.filter(i => i.kind === 'file' && i.type.startsWith('image/'));
+    if (imgItems.length) files = imgItems.map(i => i.getAsFile()).filter(Boolean);
+
+    // Method 2: files API fallback (some Windows apps)
+    if (!files.length) {
+      files = Array.from(e.clipboardData?.files ?? []).filter(f => f.type.startsWith('image/'));
+    }
+
+    if (!files.length) return;
     e.preventDefault();
-    imgs.forEach(i => { const f = i.getAsFile(); if (f) addFile(f); });
+    files.forEach(addFile);
     showFlash();
   });
 
