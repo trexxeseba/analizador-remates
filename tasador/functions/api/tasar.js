@@ -285,7 +285,7 @@ export async function onRequestPost(context) {
 
   if (!apiRes.ok) {
     const errText = await apiRes.text();
-    return Response.json({ error: `API error ${apiRes.status}: ${errText}` }, { status: 502, headers: CORS_HEADERS });
+    return Response.json({ error: `API error ${apiRes.status}: ${errText}`, mlu_data: { busquedas, resumen: mluResumen } }, { status: 502, headers: CORS_HEADERS });
   }
 
   const data = await apiRes.json();
