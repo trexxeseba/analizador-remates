@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import time
+import json
 
 # --- CONFIGURACIÓN Y LÓGICA ---
 
@@ -126,3 +127,141 @@ if st.button("🚀 Analizar Lotes"):
                 st.dataframe(df.sort_values("Margen Est.", ascending=False), use_container_width=True)
     else:
         st.info("Por favor, ingresá la URL de un remate activo.")
+
+# ─────────────────────────────────────────────
+# SECCIÓN: Calculadora de Envío por ISBN (ARS)
+# ─────────────────────────────────────────────
+st.divider()
+st.header("📦 Calculadora de Envío por ISBN → Pesos Argentinos")
+
+with st.expander("⚙️ Tasas de conversión", expanded=True):
+    c1, c2, c3 = st.columns(3)
+    tarifa_usd_kg  = c1.number_input("Tarifa envío (USD/kg)", value=15.0, step=0.5)
+    tc_usd_uyu     = c2.number_input("USD → UYU", value=40.0, step=1.0)
+    tc_uyu_ars     = c3.number_input("UYU → ARS", value=37.0, step=1.0)
+
+st.markdown("**Ingresá los ISBNs y el costo existente en ARS** (uno por línea, separados por coma):")
+st.caption("Formato: `ISBN,costo_ars`  —  el costo_ars es opcional")
+
+ejemplo = "9789871603541,14000\n9789875001374,11830\n9786075488240,10800\n9788418450532,18320\n9789875000094,17220\n9789502415802,20930\n9786073170789"
+isbn_input = st.text_area("ISBNs", value=ejemplo, height=180)
+
+
+@st.cache_data(ttl=86400)
+def buscar_peso_isbn(isbn: str) -> dict:
+    """Busca peso (grs) en Open Library; fallback Google Books."""
+    isbn = isbn.strip()
+
+    # 1) Open Library
+    try:
+        url = f"https://openlibrary.org/api/books?bibkeys=ISBN:{isbn}&format=json&jscmd=data"
+        r = requests.get(url, timeout=8)
+        data = r.json()
+        libro = data.get(f"ISBN:{isbn}", {})
+        titulo = libro.get("title", "")
+        peso_raw = libro.get("weight", "")
+        if peso_raw:
+            nums = re.findall(r"[\d.,]+", str(peso_raw))
+            if nums:
+                val = float(nums[0].replace(",", "."))
+                # Open Library puede reportar en libras o gramos
+                if "pound" in str(peso_raw).lower() or "lb" in str(peso_raw).lower():
+                    val = round(val * 453.592)
+                elif val < 5:  # probablemente kg
+                    val = round(val * 1000)
+                else:
+                    val = round(val)
+                return {"isbn": isbn, "titulo": titulo, "peso_grs": val, "fuente": "Open Library"}
+    except Exception:
+        pass
+
+    # 2) Google Books
+    try:
+        url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
+        r = requests.get(url, timeout=8)
+        items = r.json().get("items", [])
+        if items:
+            info = items[0].get("volumeInfo", {})
+            titulo = titulo or info.get("title", "")
+            # Google Books no tiene campo peso — sólo retornamos título
+            return {"isbn": isbn, "titulo": titulo, "peso_grs": None, "fuente": "Google Books (sin peso)"}
+    except Exception:
+        pass
+
+    return {"isbn": isbn, "titulo": "", "peso_grs": None, "fuente": "No encontrado"}
+
+
+def calcular_envio_ars(peso_grs, tarifa, tc_usd_uyu, tc_uyu_ars):
+    if peso_grs is None or peso_grs <= 0:
+        return None
+    return round((peso_grs / 1000) * tarifa * tc_usd_uyu * tc_uyu_ars)
+
+
+if st.button("🔍 Buscar pesos y calcular envío"):
+    filas = []
+    for linea in isbn_input.strip().splitlines():
+        partes = linea.strip().split(",")
+        isbn   = partes[0].strip()
+        costo_ars = partes[1].strip() if len(partes) > 1 else ""
+        if isbn:
+            filas.append({"isbn": isbn, "costo_ars_orig": costo_ars})
+
+    if not filas:
+        st.warning("No hay ISBNs para procesar.")
+    else:
+        with st.spinner("Consultando Open Library y Google Books..."):
+            resultados = []
+            prog = st.progress(0)
+            for i, f in enumerate(filas):
+                info = buscar_peso_isbn(f["isbn"])
+                resultados.append({
+                    "ISBN":         info["isbn"],
+                    "Título":       info["titulo"] or "—",
+                    "Fuente":       info["fuente"],
+                    "Peso (grs)":   info["peso_grs"],
+                    "Costo orig (ARS)": f["costo_ars_orig"],
+                })
+                prog.progress((i + 1) / len(filas))
+
+        st.info("✏️ Podés editar los pesos manualmente si la API no los encontró.")
+        df_edit = st.data_editor(
+            pd.DataFrame(resultados),
+            column_config={
+                "Peso (grs)": st.column_config.NumberColumn("Peso (grs)", min_value=0, step=1),
+            },
+            use_container_width=True,
+            num_rows="fixed",
+            key="tabla_pesos",
+        )
+
+        st.subheader("📋 Resultado final")
+        salida = []
+        for _, row in df_edit.iterrows():
+            peso = row["Peso (grs)"]
+            envio_ars = calcular_envio_ars(peso, tarifa_usd_kg, tc_usd_uyu, tc_uyu_ars)
+            costo_orig = row["Costo orig (ARS)"]
+
+            if envio_ars is not None:
+                if costo_orig:
+                    fmt = f"arg. {costo_orig} + arg. {envio_ars:,}".replace(",", ".")
+                else:
+                    fmt = f"arg. {envio_ars:,}".replace(",", ".")
+            else:
+                fmt = f"arg. {costo_orig} + ⚠️ peso desconocido" if costo_orig else "⚠️ peso desconocido"
+
+            salida.append({
+                "ISBN":              row["ISBN"],
+                "Título":            row["Título"],
+                "Peso (grs)":        f"{int(peso)} grs" if peso else "—",
+                "Envío USD":         f"${round((peso/1000)*tarifa_usd_kg, 2):.2f}" if peso else "—",
+                "Envío ARS":         f"arg. {envio_ars:,}".replace(",", ".") if envio_ars else "—",
+                "Celda final":       fmt,
+            })
+
+        df_salida = pd.DataFrame(salida)
+        st.dataframe(df_salida, use_container_width=True)
+
+        # Exportar como texto copiable
+        st.subheader("📋 Copiar al portapapeles")
+        texto_final = "\n".join(df_salida["Celda final"].tolist())
+        st.code(texto_final, language=None)
